@@ -4,3 +4,6 @@ tests:
 
 clean:
 	@find . -name "*.pyc" -delete
+
+run:
+	@python -m swiftsuru
