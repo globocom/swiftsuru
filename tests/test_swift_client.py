@@ -1,5 +1,6 @@
 import unittest
-from mock import patch, call
+from bogus.server import Bogus
+from mock import patch, call, MagicMock
 from swiftsuru.swift_client import SwiftClient
 from swiftsuru.conf import AUTH_URL, USER, KEY
 
@@ -29,5 +30,12 @@ class SwiftClientTest(unittest.TestCase):
         cli = SwiftClient()
         swiftclient.client.Connection.assert_called_with(preauthurl=self.url, preauthtoken=self.token)
 
-    def test_create_account_should_call_swiftclient_equivalent(self):
-        pass
+    @patch("swiftclient.client.Connection.get_auth")
+    def test_create_account_should_call_swiftclient_equivalent(self, get_auth_mock):
+        b = Bogus()
+        url = b.serve()
+        with patch("swiftsuru.swift_client.AUTH_URL", new_callable=lambda: url):
+            get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
+            cli = SwiftClient()
+            cli.create_account({"X-Account-Meta-Book":"MobyDick", "X-Account-Meta-Subject":"Literature"})
+            self.assertIn("/v1/AUTH_user", Bogus.called_paths)

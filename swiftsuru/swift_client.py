@@ -10,7 +10,7 @@ class SwiftClient(object):
     It also abstracts swiftclient actions, so you don't have to store the connection
     yourself or perform the actions on top of it, for example, what could be:
         cli = SwiftClient() # do some dirty work for you
-        cli.conn.create_account(<...>)
+        cli.conn.post_account(<...>)
     This is kind of ugly, to make it cleaner we abstract the connection for you, e.g:
         cli = SwiftClient()
         cli.create_account(<...>) # much better!
@@ -25,3 +25,6 @@ class SwiftClient(object):
         conn = swiftclient.client.Connection(authurl=AUTH_URL, user=USER, key=KEY)
         auth_url, auth_token = conn.get_auth()
         self.conn = swiftclient.client.Connection(preauthurl=auth_url, preauthtoken=auth_token)
+
+    def create_account(self, headers):
+        self.conn.post_account(headers)
