@@ -1,5 +1,9 @@
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, request
+from swift_client import SwiftClient
 
+
+ACCOUNT_META_ITEM = "X-Account-Meta-App"
+ACCOUNT_META_SUBJECT = "X-Account-Meta-Subject"
 
 api = Blueprint("swift", __name__)
 
@@ -13,6 +17,10 @@ def remove_instance():
 
 @api.route("/resources/<instance_name>/bind", methods=["POST"])
 def bind(instance_name):
+    app_host = request.form.get("app-host")
+    app_name = app_host.split(".")[0]
+    client = SwiftClient()
+    client.create_account({ACCOUNT_META_ITEM: app_name, ACCOUNT_META_SUBJECT: "team-name-here"}) # get_team(app_name)
     return "", 201
 
 @api.route("/resources/<instance_name>/bind", methods=["DELETE"])
