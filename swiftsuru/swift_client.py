@@ -28,3 +28,6 @@ class SwiftClient(object):
 
     def create_account(self, headers):
         self.conn.post_account(headers)
+
+    def remove_account(self, subject):
+        self.conn.post_account({"X-Remove-Account-Meta-Subject":subject})
