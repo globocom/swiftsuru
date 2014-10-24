@@ -32,7 +32,7 @@ class SwiftClientTest(unittest.TestCase):
         swiftclient.client.Connection.assert_called_with(preauthurl=self.url, preauthtoken=self.token)
 
     @patch("swiftclient.client.Connection.get_auth")
-    def test_create_account_should_call_swiftclient_equivalent(self, get_auth_mock):
+    def test_create_account(self, get_auth_mock):
         b = Bogus()
         url = b.serve()
         get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
@@ -42,7 +42,7 @@ class SwiftClientTest(unittest.TestCase):
             self.assertIn("/v1/AUTH_user", Bogus.called_paths)
 
     @patch("swiftclient.client.Connection.get_auth")
-    def test_remove_account_should_call_swiftclient_equivalent(self, get_auth_mock):
+    def test_remove_account(self, get_auth_mock):
         b = Bogus()
         url = b.serve()
         get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
@@ -50,3 +50,23 @@ class SwiftClientTest(unittest.TestCase):
             cli = SwiftClient()
             cli.remove_account("MobyDick")
             self.assertIn("/v1/AUTH_user", Bogus.called_paths)
+
+    @patch("swiftclient.client.Connection.get_auth")
+    def test_create_container(self, get_auth_mock):
+        b = Bogus()
+        url = b.serve()
+        get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
+        with patch("swiftsuru.swift_client.AUTH_URL", new_callable=lambda: url):
+            cli = SwiftClient()
+            cli.create_container("my_container", {"X-Container-Meta-something": "some metadata"})
+            self.assertIn("/v1/AUTH_user/my_container", b.called_paths)
+
+    @patch("swiftclient.client.Connection.get_auth")
+    def test_remove_container(self, get_auth_mock):
+        b = Bogus()
+        url = b.serve()
+        get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
+        with patch("swiftsuru.swift_client.AUTH_URL", new_callable=lambda: url):
+            cli = SwiftClient()
+            cli.remove_container("my_container", {"X-Container-Meta-something": "some metadata"})
+            self.assertIn("/v1/AUTH_user/my_container", b.called_paths)
