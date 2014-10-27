@@ -2,6 +2,7 @@ import unittest
 from bogus.server import Bogus
 from mock import patch
 from swiftsuru import app
+from swiftsuru.api import CONTAINER_TEMPLATE_NAME
 
 
 class APITest(unittest.TestCase):
@@ -36,6 +37,16 @@ class APITest(unittest.TestCase):
         data = "app-host=awesomeapp.tsuru.io&unit-host=10.10.10.10"
         self.client.post("/resources/my-swift/bind", data=data, content_type="application/x-www-form-urlencoded")
         self.assertIn("/v1/AUTH_user", b.called_paths)
+
+    @patch("swiftclient.client.Connection.get_auth")
+    def test_bind_creates_swift_container(self, get_auth_mock):
+        b = Bogus()
+        url = b.serve() # for python-swiftclient
+        get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
+
+        data = "app-host=awesomeapp.tsuru.io&unit-host=10.10.10.10"
+        self.client.post("/resources/my-swift/bind", data=data, content_type="application/x-www-form-urlencoded")
+        self.assertIn("/v1/AUTH_user/{}".format(CONTAINER_TEMPLATE_NAME), b.called_paths)
 
     def test_unbind_returns_200(self):
         response = self.client.delete("/resources/my-swift/bind")
