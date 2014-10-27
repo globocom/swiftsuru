@@ -9,6 +9,7 @@ class APITest(unittest.TestCase):
 
     def setUp(self):
         self.client = app.test_client()
+        Bogus.called_paths = []
 
     def test_add_instance_returns_201(self):
         response = self.client.post("/resources")
@@ -51,3 +52,6 @@ class APITest(unittest.TestCase):
     def test_unbind_returns_200(self):
         response = self.client.delete("/resources/my-swift/bind")
         self.assertEqual(response.status_code, 200)
+
+    def test_unbind_removes_swift_account(self):
+        pass
