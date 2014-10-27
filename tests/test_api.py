@@ -31,16 +31,6 @@ class APITest(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
 
     @patch("swiftclient.client.Connection.get_auth")
-    def test_bind_creates_swift_account_with_first_name_on_host(self, get_auth_mock):
-        b = Bogus()
-        url = b.serve() # for python-swiftclient
-        get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
-
-        data = "app-host=awesomeapp.tsuru.io&unit-host=10.10.10.10"
-        self.client.post("/resources/my-swift/bind", data=data, content_type=self.content_type)
-        self.assertIn("/v1/AUTH_user", b.called_paths)
-
-    @patch("swiftclient.client.Connection.get_auth")
     def test_bind_creates_swift_container(self, get_auth_mock):
         b = Bogus()
         url = b.serve() # for python-swiftclient
@@ -59,13 +49,3 @@ class APITest(unittest.TestCase):
         data = "app-host=awesomeapp.tsuru.io&unit-host=10.10.10.10"
         response = self.client.delete("/resources/my-swift/bind", data=data, content_type=self.content_type)
         self.assertEqual(response.status_code, 200)
-
-    @patch("swiftclient.client.Connection.get_auth")
-    def test_unbind_removes_swift_account(self, get_auth_mock):
-        b = Bogus()
-        url = b.serve()
-        get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
-
-        data = "app-host=awesomeapp.tsuru.io&unit-host=10.10.10.10"
-        self.client.delete("/resources/my-swift/bind", data=data, content_type=self.content_type)
-        self.assertIn("/v1/AUTH_user", b.called_paths)
