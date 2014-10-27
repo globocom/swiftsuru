@@ -33,7 +33,7 @@ class SwiftClient(object):
         self.conn.post_account({"X-Remove-Account-Meta-Subject":subject})
 
     def create_container(self, name, headers):
-        self.conn.post_container(name, headers)
+        self.conn.put_container(name, headers)
 
     def remove_container(self, name, headers):
         self.conn.post_container(name, headers)
