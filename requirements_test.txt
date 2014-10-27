@@ -2,4 +2,4 @@
 
 mock==1.0.1
 honcho==0.5.0
-bogus==0.1.4
+bogus==0.1.5
