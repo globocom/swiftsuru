@@ -8,6 +8,7 @@ CONTAINER_TEMPLATE_NAME = "assets" # should we keep this?
 
 api = Blueprint("swift", __name__)
 
+
 @api.route("/resources", methods=["POST"])
 def add_instance():
     return "", 201
@@ -20,6 +21,7 @@ def remove_instance():
 def bind(instance_name):
     app_host = request.form.get("app-host")
     app_name = app_host.split(".")[0]
+
     client = SwiftClient()
     client.create_account({ACCOUNT_META_ITEM: app_name, ACCOUNT_META_SUBJECT: "team-name-here"}) # get_team(app_name)
     client.create_container(CONTAINER_TEMPLATE_NAME, headers={"X-Container-Read": ".r:*"})
@@ -27,4 +29,9 @@ def bind(instance_name):
 
 @api.route("/resources/<instance_name>/bind", methods=["DELETE"])
 def unbind(instance_name):
+    app_host = request.form.get("app-host")
+    app_name = app_host.split(".")[0]
+
+    client = SwiftClient()
+    client.remove_account({ACCOUNT_META_ITEM: app_name})
     return "", 200
