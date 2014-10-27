@@ -32,6 +32,13 @@ class SwiftClient(object):
     def remove_account(self, subject):
         self.conn.post_account({"X-Remove-Account-Meta-Subject":subject})
 
+    def account_containers(self):
+        """
+        Returns a list of existing containers for a given account.
+        Now this account is on conf.py, but it should be given by __init__ method
+        """
+        return self.conn.get_account()[1]
+
     def create_container(self, name, headers):
         self.conn.put_container(name, headers)
 
