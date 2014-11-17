@@ -1,5 +1,6 @@
 .PHONY:tests
 tests:
+	@-pep8 swiftsuru/ --ignore=E501,E126,E127,E128
 	@python -m unittest discover
 
 clean:
