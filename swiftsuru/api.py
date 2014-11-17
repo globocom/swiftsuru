@@ -32,3 +32,8 @@ def bind(instance_name):
 @api.route("/resources/<instance_name>/bind", methods=["DELETE"])
 def unbind(instance_name):
     return "", 200
+
+
+@api.route("/healthcheck")
+def healthcheck():
+    return "WORKING"

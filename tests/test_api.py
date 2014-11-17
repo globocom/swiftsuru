@@ -49,3 +49,10 @@ class APITest(unittest.TestCase):
         data = "app-host=awesomeapp.tsuru.io&unit-host=10.10.10.10"
         response = self.client.delete("/resources/my-swift/bind", data=data, content_type=self.content_type)
         self.assertEqual(response.status_code, 200)
+
+    def test_healthcheck(self):
+        response = self.client.get("/healthcheck")
+        content = response.get_data()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(content, 'WORKING')
