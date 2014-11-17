@@ -1,3 +1,3 @@
-from swiftsuru import app
+from swiftsuru import conf, app
 
-app.run()
+app.run(port=conf.PORT)
