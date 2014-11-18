@@ -36,4 +36,4 @@ def unbind(instance_name):
 
 @api.route("/healthcheck")
 def healthcheck():
-    return "WORKING"
+    return "WORKING", 200
