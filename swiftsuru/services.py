@@ -7,7 +7,12 @@ from swiftsuru import conf
 
 def create_tsuru_plans_list():
 
-    mongo_cli = pymongo.MongoClient(conf.MONGODB_ENDPOINT)
+    try:
+        mongo_cli = pymongo.MongoClient(conf.MONGODB_ENDPOINT)
+    except pymongo.error.ConnectionFailure, err:
+        print err
+        return {}
+
     mongo_db = mongo_cli[conf.MONGODB_DATABASE]
 
     collection = mongo_db['plans']
