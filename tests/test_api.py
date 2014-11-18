@@ -1,6 +1,9 @@
+import json
 import unittest
-from bogus.server import Bogus
 from mock import patch
+
+from bogus.server import Bogus
+
 from swiftsuru import app
 from swiftsuru.api import CONTAINER_TEMPLATE_NAME
 
@@ -8,6 +11,7 @@ from swiftsuru.api import CONTAINER_TEMPLATE_NAME
 class APITest(unittest.TestCase):
 
     def setUp(self):
+        self.maxDiff = None
         self.client = app.test_client()
         self.content_type = "application/x-www-form-urlencoded"
         Bogus.called_paths = []
@@ -56,3 +60,20 @@ class APITest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn(content, 'WORKING')
+
+    def test_list_plan(self):
+        response = self.client.get("/resources/plans")
+        self.assertEqual(response.status_code, 200)
+
+        expected = {
+            'G1/Jornalismo': 'Tenant para G1/Jornalismo',
+            'GE/Esportes': 'Tenant para GE/Esportes',
+            'GShow/Entretenimento': 'Tenant para GShow/Entretenimento',
+            'Plataformas': 'Tenant para Plataformas',
+            'Produtos Globo': 'Tenant para Produtos Globo',
+            'Webmedia': 'Tenant para Webmedia',
+        }
+
+        computed = json.loads(response.get_data())
+
+        self.assertEqual(computed, expected)

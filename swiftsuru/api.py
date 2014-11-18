@@ -1,6 +1,8 @@
-from flask import Flask, Blueprint, request
+import json
+from flask import Response, Blueprint, request
 from swift_client import SwiftClient
 
+from services import create_tsuru_plans_list
 
 ACCOUNT_META_ITEM = "X-Account-Meta-App"
 ACCOUNT_META_SUBJECT = "X-Account-Meta-Subject"
@@ -37,3 +39,10 @@ def unbind(instance_name):
 @api.route("/healthcheck")
 def healthcheck():
     return "WORKING", 200
+
+
+@api.route("/resources/plans")
+def list_plans():
+    plan_list = create_tsuru_plans_list()
+    content = Response(json.dumps(plan_list), mimetype='application/json')
+    return content, 200
