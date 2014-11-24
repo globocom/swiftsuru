@@ -69,6 +69,7 @@ class APITest(unittest.TestCase):
             'G1/Jornalismo': 'Tenant para G1/Jornalismo',
             'GE/Esportes': 'Tenant para GE/Esportes',
             'GShow/Entretenimento': 'Tenant para GShow/Entretenimento',
+            'Infra': 'Tenant para Infra',
             'Plataformas': 'Tenant para Plataformas',
             'Produtos Globo': 'Tenant para Produtos Globo',
             'Webmedia': 'Tenant para Webmedia',

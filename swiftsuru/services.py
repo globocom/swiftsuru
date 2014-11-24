@@ -2,6 +2,7 @@
 Swiftsuru related services to Tsuru
 """
 import pymongo
+import os
 
 from swiftsuru import conf
 
@@ -25,3 +26,6 @@ def create_tsuru_plans_list():
         result[name] = plan.get('description', name)
 
     return result
+
+def generate_container_name():
+    return os.urandom(3).encode('hex')
