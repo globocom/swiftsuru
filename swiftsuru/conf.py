@@ -11,4 +11,4 @@ KEY = environ.get("SWIFT_KEY", "testing")
 
 # mongo settings
 MONGODB_ENDPOINT = environ.get("MONGODB_ENDPOINT", "localhost:27017")
-MONGODB_DATABASE = environ.get("MONGO_DATABASE", "swiftsuru")
+MONGODB_DATABASE = environ.get("MONGODB_DATABASE", "swiftsuru")
