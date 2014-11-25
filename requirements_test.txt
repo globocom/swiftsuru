@@ -1,6 +1,10 @@
 -r requirements.txt
 
-mock==1.0.1
-honcho==0.5.0
 bogus==0.1.5
+honcho==0.5.0
+ipdb==0.8
+mock==1.0.1
 pep8==1.5.7
+pylint==1.0.0
+pytest-cov==1.7.0
+pytest==2.5.2
