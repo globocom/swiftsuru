@@ -22,10 +22,10 @@ class SwiftClient(object):
         Gets auth information for next API calls via conn.get_auth() and
         a authenticated client connection for performing actions.
         """
-        import ipdb;ipdb.set_trace()
         if keystone_conn:
             token = keystone_conn.conn.auth_token
-            url = keystone_conn.get_admin_url()
+            endpoints = keystone_conn.get_storage_endpoints()
+            url = endpoints['adminURL']
 
             self.conn = swiftclient.client.Connection(preauthurl=url, preauthtoken=token, insecure=True)
         else:

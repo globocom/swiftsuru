@@ -110,7 +110,11 @@ class KeystoneClient(object):
             return self.conn.projects
 
     # TODO: Ajustar para ser compliance com v3
-    def get_admin_url(self):
-        url = None
+    # def get_admin_url(self):
+    #     url = None
+    #     endpoints = self.conn.service_catalog.get_endpoints()
+    #     return str(endpoints['object-store'][0]['adminURL'])
+
+    def get_storage_endpoints(self):
         endpoints = self.conn.service_catalog.get_endpoints()
-        return str(endpoints['object-store'][0]['adminURL'])
+        return endpoints['object-store'][0]
