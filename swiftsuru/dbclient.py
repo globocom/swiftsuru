@@ -13,6 +13,8 @@ class SwiftsuruDBClient(object):
 
     def __init__(self):
         self._db = self.set_database()
+        self._db.plans.ensure_index("name", unique=True)
+        self._db.instances.ensure_index("name", unique=True)
 
     def set_connection(self):
         return pymongo.MongoClient(conf.MONGODB_ENDPOINT)
