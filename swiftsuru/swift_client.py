@@ -16,15 +16,22 @@ class SwiftClient(object):
         cli.create_account(<...>) # much better!
     """
 
-    def __init__(self):
+    def __init__(self, keystone_conn=None):
         """
         Authenticates on swift with AUTH_URL, USER, and KEY from conf.py.
         Gets auth information for next API calls via conn.get_auth() and
         a authenticated client connection for performing actions.
         """
-        conn = swiftclient.client.Connection(authurl=AUTH_URL, user=USER, key=KEY)
-        auth_url, auth_token = conn.get_auth()
-        self.conn = swiftclient.client.Connection(preauthurl=auth_url, preauthtoken=auth_token)
+        if keystone_conn:
+            token = keystone_conn.conn.auth_token
+            endpoints = keystone_conn.get_storage_endpoints()
+            url = endpoints['adminURL']
+
+            self.conn = swiftclient.client.Connection(preauthurl=url, preauthtoken=token, insecure=True)
+        else:
+            conn = swiftclient.client.Connection(authurl=AUTH_URL, user=USER, key=KEY)
+            auth_url, auth_token = conn.get_auth()
+            self.conn = swiftclient.client.Connection(preauthurl=auth_url, preauthtoken=auth_token)
 
     def create_account(self, headers):
         self.conn.post_account(headers)

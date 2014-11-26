@@ -1,3 +1,16 @@
-.DS_Store
+# Byte-compiled / optimized / DLL files
+__pycache__/
 *.py[cod]
+
+# Mac OS X
+.DS_Store
+
+# Unit test / coverage reports
 .coverage
+
+# Vim swap files
+*.sw[a-z]
+
+# environ file
+environ
+.env

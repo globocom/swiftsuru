@@ -19,4 +19,4 @@ tests_ci: clean pep8
 	@py.test
 
 run: clean
-	@python -m swiftsuru
+	@PYTHONPATH=`pwd`:$PYTHONPATH python -m swiftsuru
