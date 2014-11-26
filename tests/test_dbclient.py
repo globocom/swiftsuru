@@ -17,6 +17,8 @@ class SwiftsuruDBClientTest(unittest.TestCase):
         self.db = SwiftsuruDBClient()
 
     def tearDown(self):
+        self.db._db.drop_collection("plans")
+        self.db._db.drop_collection("instances")
         patch.stopall()
 
     def test_list_plans_returns_a_list(self):
