@@ -66,7 +66,7 @@ class APITest(unittest.TestCase):
     @patch("swiftclient.client.Connection.get_auth")
     def test_bind_returns_201(self, get_auth_mock):
         b = Bogus()
-        url = b.serve() # for python-swiftclient
+        url = b.serve()  # for python-swiftclient
         get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
 
         data = "app-host=awesomeapp.tsuru.io&unit-host=10.10.10.10"
@@ -76,7 +76,7 @@ class APITest(unittest.TestCase):
     @patch("swiftclient.client.Connection.get_auth")
     def test_bind_creates_swift_container(self, get_auth_mock):
         b = Bogus()
-        url = b.serve() # for python-swiftclient
+        url = b.serve()  # for python-swiftclient
         get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
 
         data = "app-host=awesomeapp.tsuru.io&unit-host=10.10.10.10"
@@ -100,7 +100,11 @@ class APITest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(content, 'WORKING')
 
-    def test_list_plan(self):
+    @patch("swiftsuru.dbclient.SwiftsuruDBClient.list_plans")
+    def test_list_plan(self, list_plans_mock):
+        list_plans_mock.return_value = [{'name': 'Infra',
+                                         'description': 'Tenant para Infra'}]
+
         response = self.client.get("/resources/plans")
         self.assertEqual(response.status_code, 200)
 

@@ -1,9 +1,14 @@
+
 import json
+
 from flask import Response, Blueprint, request
 
 from keystone_client import KeystoneClient
 from swift_client import SwiftClient
 from swiftsuru import utils, conf
+
+from dbclient import SwiftsuruDBClient
+
 
 ACCOUNT_META_ITEM = "X-Account-Meta-App"
 ACCOUNT_META_SUBJECT = "X-Account-Meta-Subject"
@@ -74,6 +79,13 @@ def healthcheck():
 
 @api.route("/resources/plans")
 def list_plans():
-    plan_list = utils.create_tsuru_plans_list()
-    content = Response(json.dumps(plan_list), mimetype='application/json')
+    db_cli = SwiftsuruDBClient()
+    plans = {}
+
+    for plan in db_cli.list_plans():
+        name = plan.get('name')
+        plans[name] = plan.get("description", name)
+
+    content = Response(json.dumps(plans), mimetype='application/json')
+
     return content, 200
