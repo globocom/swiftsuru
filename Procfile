@@ -1,1 +1,1 @@
-swiftsuru: PYTHONPATH=/home/application/current:$PYTHONPATH python -m swiftsuru
+web: PYTHONPATH=/home/application/current:$PYTHONPATH python -m swiftsuru
