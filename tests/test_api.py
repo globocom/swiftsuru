@@ -5,7 +5,6 @@ from mock import patch
 from bogus.server import Bogus
 
 from swiftsuru import app, conf
-from swiftsuru.api import CONTAINER_TEMPLATE_NAME
 
 
 class APITest(unittest.TestCase):
@@ -31,8 +30,6 @@ class APITest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 201)
 
-        # self.assertTrue(mock_swiftclient.return_value.create_container.called)
-
         expected_username = 'myteam_myinstance'
         expected_role = conf.KEYSTONE_DEFAULT_ROLE
 
@@ -53,10 +50,16 @@ class APITest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 500)
 
-    def test_remove_instance_returns_200(self):
-        response = self.client.delete("/resources")
+    @patch("swiftsuru.api.SwiftsuruDBClient")
+    def test_remove_instance_returns_200(self, dbclient_mock):
+        response = self.client.delete("/resources/my_instance")
         self.assertEqual(response.status_code, 200)
 
+        _, _, kargs = dbclient_mock.return_value.remove_instance.mock_calls[0]
+        expected = 'my_instance'
+        computed = kargs.get('name')
+
+        self.assertEqual(computed, expected)
 
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
@@ -100,10 +103,6 @@ class APITest(unittest.TestCase):
 
     @patch("swiftclient.client.Connection.get_auth")
     def test_unbind_returns_200(self, get_auth_mock):
-        # b = Bogus()
-        # url = b.serve()
-        # get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
-
         data = "app-host=awesomeapp.tsuru.io&unit-host=10.10.10.10"
         response = self.client.delete("/resources/my-swift/bind", data=data, content_type=self.content_type)
         self.assertEqual(response.status_code, 200)
