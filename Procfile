@@ -1,2 +1,1 @@
-export PYTHONPATH=/home/application/current:$PYTHONPATH
-swiftsuru: python -m swiftsuru
+swiftsuru: PYTHONPATH=/home/application/current:$PYTHONPATH; python -m swiftsuru
