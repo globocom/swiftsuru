@@ -33,8 +33,8 @@ def add_instance():
         db_cli = SwiftsuruDBClient()
     except Exception, err:
         # TODO: logging
-        print "ERROR: Fail to conect to MongoDB: {}".format(err)
-        return "Failed to create instance", 500
+        msg = "ERROR: Fail to conect to MongoDB: {}".format(err)
+        return "Failed to create instance\n {}".format(msg), 500
 
     data = request.form
 
@@ -68,8 +68,8 @@ def add_instance():
                              enabled=True)
     except Exception, err:
         # TODO: logging
-        print 'ERROR: Fail to create user on Keystone: {}'.format(err)
-        return "Failed to create instance", 500
+        msg = 'ERROR: Fail to create user on Keystone: {}'.format(err)
+        return "Failed to create instance\n{}".format(msg), 500
 
     container_name = utils.generate_container_name()
     tenant_user = "{}:{}".format(tenant, username)
@@ -84,8 +84,8 @@ def add_instance():
     except Exception, err:
         # TODO: logging
         # TODO: remove user created on Keystone
-        print 'ERROR: Fail to create container on Swift: {}'.format(err)
-        return "Failed to create instance", 500
+        msg = 'ERROR: Fail to create container on Swift: {}'.format(err)
+        return "Failed to create instance\n{}".format(msg), 500
 
     try:
         db_cli.add_instance(name, team, container_name,
