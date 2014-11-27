@@ -122,10 +122,6 @@ class APITest(unittest.TestCase):
         response = self.client.get("/resources/plans")
         self.assertEqual(response.status_code, 200)
 
-        expected = {
-            'Infra': 'Tenant para Infra'
-        }
-
+        expected = [{u'name': u'Infra', u'description': u'Tenant para Infra'}]
         computed = json.loads(response.get_data())
-
         self.assertEqual(computed, expected)

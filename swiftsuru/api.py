@@ -171,12 +171,14 @@ def list_plans():
     List all plans availables on Swift.
     """
     db_cli = SwiftsuruDBClient()
-    plans = {}
+    plans = []
 
     for plan in db_cli.list_plans():
-        name = plan.get('name')
-        plans[name] = plan.get("description", name)
+        plans.append({
+            "name": plan.get("name"),
+            "description": plan.get("description")
+            })
 
-    content = Response(json.dumps(plans), mimetype='application/json')
+    content = Response(json.dumps(plans), mimetype="application/json")
 
     return content, 200
