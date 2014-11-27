@@ -38,7 +38,7 @@ class SwiftClientTest(unittest.TestCase):
         get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
         with patch("swiftsuru.swift_client.AUTH_URL", new_callable=lambda: url):
             cli = SwiftClient()
-            cli.create_account({"X-Account-Meta-Book":"MobyDick", "X-Account-Meta-Subject":"Literature"})
+            cli.create_account({"X-Account-Meta-Book": "MobyDick", "X-Account-Meta-Subject": "Literature"})
             self.assertIn("/v1/AUTH_user", Bogus.called_paths)
 
     @patch("swiftclient.client.Connection.get_auth")
@@ -63,9 +63,8 @@ class SwiftClientTest(unittest.TestCase):
             cli = SwiftClient()
             containers = cli.account_containers()
 
-        expected = [{"count":0, "bytes":0, "name":"mycontainer"}]
+        expected = [{"count": 0, "bytes": 0, "name": "mycontainer"}]
         self.assertListEqual(expected, containers)
-
 
     @patch("swiftclient.client.Connection.get_auth")
     def test_create_container(self, get_auth_mock):
