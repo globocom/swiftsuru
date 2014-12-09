@@ -2,8 +2,6 @@ import json
 import unittest
 from mock import patch
 
-from bogus.server import Bogus
-
 from swiftsuru import app, conf
 
 
@@ -13,8 +11,6 @@ class APITest(unittest.TestCase):
         self.maxDiff = None
         self.client = app.test_client()
         self.content_type = "application/x-www-form-urlencoded"
-        Bogus.called_paths = []
-
 
     @patch("swiftsuru.api.SwiftsuruDBClient")
     @patch("swiftsuru.api.SwiftClient")
@@ -92,14 +88,17 @@ class APITest(unittest.TestCase):
                          "SWIFT_PUBLIC_URL",
                          "SWIFT_INTERNAL_URL",
                          "SWIFT_AUTH_URL",
+                         "SWIFT_CONTAINER",
+                         "SWIFT_TENANT",
                          "SWIFT_USER",
                          "SWIFT_PASSWORD"]
 
         computed = json.loads(response.get_data())
 
+        self.assertEquals(len(computed), len(expected_keys))
+
         for key in expected_keys:
             self.assertIn(key, computed.keys())
-
 
     @patch("swiftclient.client.Connection.get_auth")
     def test_unbind_returns_200(self, get_auth_mock):

@@ -142,6 +142,8 @@ def bind(instance_name):
         "SWIFT_INTERNAL_URL": '{}/{}'.format(endpoints["internalURL"],
                                              container),
         "SWIFT_AUTH_URL": getattr(conf, 'KEYSTONE_URL'),
+        "SWIFT_CONTAINER": container,
+        "SWIFT_TENANT": tenant,
         "SWIFT_USER": instance.get("user"),
         "SWIFT_PASSWORD": instance.get("password")
     }
@@ -177,7 +179,7 @@ def list_plans():
         plans.append({
             "name": plan.get("name"),
             "description": plan.get("description")
-            })
+        })
 
     content = Response(json.dumps(plans), mimetype="application/json")
 
