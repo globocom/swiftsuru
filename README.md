@@ -27,7 +27,7 @@ After binding, the following environment variables will be available at your App
 * SWIFT\_TENANT
 * SWIFT\_USER
 
-There are some possible use cases to integrate your App with Swift. The most common use case is deploy/serve the static file of your application. To easily to this, we recommend [simple-swifclient](https://github.com/globocom/simple-swiftclient).
+There are some possible use cases to integrate your App with Swift. The most common use case is deploy/serve the static file of your application. To easily do this, we recommend [simple-swifclient](https://github.com/globocom/simple-swiftclient).
 
 Example of deploy hook of a Django App.
 
