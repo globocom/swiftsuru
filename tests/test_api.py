@@ -158,6 +158,24 @@ class APITest(unittest.TestCase):
         count = Counter(bog.called_paths)
         self.assertEqual(count["/api/ipv4/acl/10.4.3.2/24"], 2)
 
+    @patch("swiftsuru.api.KeystoneClient")
+    @patch("swiftsuru.api.SwiftsuruDBClient")
+    @patch("swiftsuru.api.conf")
+    def test_doesnt_call_aclapi_when_conf_is_false(self, conf_mock, dbclient_mock, keystoneclient_mock):
+        self._keystoneclient_mock(keystoneclient_mock)
+        Bogus.called_paths = []
+        bog = Bogus()
+        url = bog.serve()
+        self._mock_confs(url, conf_mock)
+        conf_mock.ENABLE_ACLAPI = False
+
+        data = "app-host=myapp.cloud.tsuru.io&unit-host=10.4.3.2"
+        response = self.client.post("/resources/instance_name/bind",
+                                    data=data,
+                                    content_type=self.content_type)
+        self.assertEqual(response.status_code, 201)
+        self.assertNotIn("/api/ipv4/acl/10.4.3.2/24", bog.called_paths)
+
     @patch("swiftclient.client.Connection.get_auth")
     def test_unbind_returns_200(self, get_auth_mock):
         data = "app-host=awesomeapp.tsuru.io&unit-host=10.10.10.10"

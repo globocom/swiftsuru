@@ -151,11 +151,12 @@ def bind(instance_name):
         "SWIFT_PASSWORD": instance.get("password")
     }
 
-    unit_host = request.form.get("unit-host")
-    utils.permit_keystone_access(unit_host)
-    swift_host = endpoints["adminURL"].split("://")[1]
-    swift_host, swift_port = swift_host.split(":")
-    utils.permit_swift_access(unit_host, swift_host, swift_port)
+    if conf.ENABLE_ACLAPI:
+        unit_host = request.form.get("unit-host")
+        utils.permit_keystone_access(unit_host)
+        swift_host = endpoints["adminURL"].split("://")[1]
+        swift_host, swift_port = swift_host.split(":")
+        utils.permit_swift_access(unit_host, swift_host, swift_port)
 
     return jsonify(response), 201
 
