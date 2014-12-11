@@ -7,6 +7,7 @@ http://docs.tsuru.io/en/0.5.3/services/api.html
 http://docs.tsuru.io/en/0.5.3/services/build.html
 """
 import json
+import socket
 
 from flask import Response, Blueprint, request, jsonify
 
@@ -14,6 +15,7 @@ from swiftsuru import utils, conf
 from swiftsuru.keystone_client import KeystoneClient
 from swiftsuru.swift_client import SwiftClient
 from swiftsuru.dbclient import SwiftsuruDBClient
+from aclapiclient import L4Opts
 
 
 api = Blueprint("swift", __name__)
@@ -121,7 +123,8 @@ def bind(instance_name):
     """
     Bind a Tsuru APP on a Swift Service Instance.
 
-    Expose all variables needed for an App conect to Swift
+    Expose all variables needed for an App to connect with Swift and adds a permit
+    access on the used ACL.
     """
     db_cli = SwiftsuruDBClient()
     instance = db_cli.get_instance(instance_name)
@@ -147,6 +150,14 @@ def bind(instance_name):
         "SWIFT_USER": instance.get("user"),
         "SWIFT_PASSWORD": instance.get("password")
     }
+
+    l4_opts = L4Opts("eq", conf.KEYSTONE_PORT, "dest")
+    utils.aclapi_cli().add_tcp_permit_access(
+        desc="access for service instance {} and tenant {}".format(instance, tenant),
+        source="{}/24".format(request.form.get("unit-host")),
+        dest="{}/32".format(socket.gethostbyname(conf.KEYSTONE_HOST)),
+        l4_opts=l4_opts
+    )
 
     return jsonify(response), 201
 

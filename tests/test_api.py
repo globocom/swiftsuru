@@ -1,6 +1,7 @@
 import json
 import unittest
 from mock import patch
+from bogus.server import Bogus
 
 from swiftsuru import app, conf
 
@@ -59,17 +60,24 @@ class APITest(unittest.TestCase):
 
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
-    def test_bind_export_swift_enviroments_and_returns_201(self, dbclient_mock, keystoneclient_mock):
+    @patch("swiftsuru.api.utils.conf")
+    def test_bind_export_swift_enviroments_and_returns_201(self, conf_mock, dbclient_mock, keystoneclient_mock):
+        bog = Bogus()
+        bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda:("{}",200)),
+                     method="PUT",
+                     headers={"Location": "/api/jobs/1"})
+        url = bog.serve()
+        conf_mock.ACLAPI_URL = url
         dbclient_mock.return_value.get_instance.return_value = {"name": 'intance_name',
-                                          "team": 'intance_team',
-                                          "container": 'intance_container',
-                                          "plan": 'intance_plan',
-                                          "user": 'intance_user',
-                                          "password": 'instance_password'}
+                                                                "team": 'intance_team',
+                                                                "container": 'intance_container',
+                                                                "plan": 'intance_plan',
+                                                                "user": 'intance_user',
+                                                                "password": 'instance_password'}
 
         dbclient_mock.return_value.get_instance.return_value = {"name": 'plan_name',
-                                      "tenant": 'plan_tenant',
-                                      "description": 'plan_desc'}
+                                                                "tenant": 'plan_tenant',
+                                                                "description": 'plan_desc'}
 
         keystoneclient_mock.return_value.get_storage_endpoints.return_value = {
             "adminURL": "http://localhost",
@@ -99,6 +107,24 @@ class APITest(unittest.TestCase):
 
         for key in expected_keys:
             self.assertIn(key, computed.keys())
+
+    @patch("swiftsuru.api.KeystoneClient")
+    @patch("swiftsuru.api.SwiftsuruDBClient")
+    @patch("swiftsuru.api.utils.conf")
+    def test_bind_calls_aclapi_through_aclapiclient(self, conf_mock, dbclient_mock, keystoneclient_mock):
+        bog = Bogus()
+        bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda:("{}",200)),
+                     method="PUT",
+                     headers={"Location": "/api/jobs/1"})
+        url = bog.serve()
+        conf_mock.ACLAPI_URL = url
+        data = "app-host=myapp.cloud.tsuru.io&unit-host=10.4.3.2"
+        response = self.client.post("/resources/intance_name/bind",
+                                    data=data,
+                                    content_type=self.content_type)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("/api/ipv4/acl/10.4.3.2/24", bog.called_paths)
 
     @patch("swiftclient.client.Connection.get_auth")
     def test_unbind_returns_200(self, get_auth_mock):
