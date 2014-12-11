@@ -7,15 +7,15 @@ Considering you are using a pre-configured Tsuru cloud and that Swiftsuru is alr
 ###Check which Swift plans are available
 
 	tsuru service-info swift
-	
+
 ###Create a new Swift instance
 
 	tsuru service-add swift <swift-instance-name> <swift-plan>
-	
+
 ###Bind your swift instance to an existing app
 
 	tsuru bind <swift-instance-name> --app <app-name>
-	
+
 After binding, the following environment variables will be available at your App units:
 
 * SWIFT\_ADMIN\_URL
