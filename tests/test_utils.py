@@ -1,5 +1,6 @@
 import re
 import unittest
+from collections import namedtuple
 from mock import patch
 
 from swiftsuru import utils
@@ -41,3 +42,18 @@ class UtilsTest(unittest.TestCase):
         computed = utils.generate_password()
 
         self.assertTrue(re.match('^[a-zA-Z0-9!@#$%^&*]+$', computed) is not None)
+
+    @patch("swiftsuru.utils.Client")
+    @patch("swiftsuru.utils.L4Opts")
+    def test_permit_keystone_access_should_call_aclapiclient_with_keystone_ip_endpoint(self, l4_opts_mock, aclapi_mock):
+        utils.aclcli = None
+        func_mock = aclapi_mock.return_value.add_tcp_permit_access
+        l4_opts_obj = namedtuple("L4Opts", ["to_dict"])(lambda: {})
+        l4_opts_mock.return_value = l4_opts_obj
+        utils.permit_keystone_access(unit_host="10.10.1.2")
+        func_mock.assert_called_with(
+            desc="access for service for tsuru unit: {}".format("10.10.1.2"),
+            source="10.10.1.2/24",
+            dest="127.0.0.1/32",
+            l4_opts=l4_opts_obj
+        )
