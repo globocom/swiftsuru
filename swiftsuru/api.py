@@ -7,7 +7,7 @@ http://docs.tsuru.io/en/0.5.3/services/api.html
 http://docs.tsuru.io/en/0.5.3/services/build.html
 """
 import json
-import socket
+# import socket
 
 from flask import Response, Blueprint, request, jsonify
 
@@ -15,7 +15,7 @@ from swiftsuru import utils, conf
 from swiftsuru.keystone_client import KeystoneClient
 from swiftsuru.swift_client import SwiftClient
 from swiftsuru.dbclient import SwiftsuruDBClient
-from aclapiclient import L4Opts
+# from aclapiclient import L4Opts
 
 
 api = Blueprint("swift", __name__)
@@ -151,13 +151,7 @@ def bind(instance_name):
         "SWIFT_PASSWORD": instance.get("password")
     }
 
-    l4_opts = L4Opts("eq", conf.KEYSTONE_PORT, "dest")
-    utils.aclapi_cli().add_tcp_permit_access(
-        desc="access for service instance {} and tenant {}".format(instance, tenant),
-        source="{}/24".format(request.form.get("unit-host")),
-        dest="{}/32".format(socket.gethostbyname(conf.KEYSTONE_HOST)),
-        l4_opts=l4_opts
-    )
+    utils.permit_keystone_access(request.form.get("unit-host"))
 
     return jsonify(response), 201
 

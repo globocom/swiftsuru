@@ -58,16 +58,21 @@ class APITest(unittest.TestCase):
 
         self.assertEqual(computed, expected)
 
+    def _mock_confs(self, aclapi_url, conf_mock):
+        conf_mock.ACLAPI_URL = aclapi_url
+        conf_mock.KEYSTONE_HOST = "127.0.0.1"
+        conf_mock.KEYSTONE_PORT = "5000"
+
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
     @patch("swiftsuru.api.utils.conf")
     def test_bind_export_swift_enviroments_and_returns_201(self, conf_mock, dbclient_mock, keystoneclient_mock):
         bog = Bogus()
-        bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda:("{}",200)),
+        bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda: ("{}", 200)),
                      method="PUT",
                      headers={"Location": "/api/jobs/1"})
         url = bog.serve()
-        conf_mock.ACLAPI_URL = url
+        self._mock_confs(url, conf_mock)
         dbclient_mock.return_value.get_instance.return_value = {"name": 'intance_name',
                                                                 "team": 'intance_team',
                                                                 "container": 'intance_container',
@@ -113,11 +118,11 @@ class APITest(unittest.TestCase):
     @patch("swiftsuru.api.utils.conf")
     def test_bind_calls_aclapi_through_aclapiclient(self, conf_mock, dbclient_mock, keystoneclient_mock):
         bog = Bogus()
-        bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda:("{}",200)),
+        bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda: ("{}", 200)),
                      method="PUT",
                      headers={"Location": "/api/jobs/1"})
         url = bog.serve()
-        conf_mock.ACLAPI_URL = url
+        self._mock_confs(url, conf_mock)
         data = "app-host=myapp.cloud.tsuru.io&unit-host=10.4.3.2"
         response = self.client.post("/resources/intance_name/bind",
                                     data=data,
