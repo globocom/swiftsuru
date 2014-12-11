@@ -1,5 +1,6 @@
 import json
 import unittest
+from collections import Counter
 from mock import patch
 from bogus.server import Bogus
 
@@ -63,6 +64,13 @@ class APITest(unittest.TestCase):
         conf_mock.KEYSTONE_HOST = "127.0.0.1"
         conf_mock.KEYSTONE_PORT = "5000"
 
+    def _keystoneclient_mock(self, k_mock):
+        k_mock.return_value.get_storage_endpoints.return_value = {
+            "adminURL": "http://localhost:35357",
+            "publicURL": "http://localhost",
+            "internalURL": "http://localhost"
+        }
+
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
     @patch("swiftsuru.api.utils.conf")
@@ -73,7 +81,7 @@ class APITest(unittest.TestCase):
                      headers={"Location": "/api/jobs/1"})
         url = bog.serve()
         self._mock_confs(url, conf_mock)
-        dbclient_mock.return_value.get_instance.return_value = {"name": 'intance_name',
+        dbclient_mock.return_value.get_instance.return_value = {"name": 'instance_name',
                                                                 "team": 'intance_team',
                                                                 "container": 'intance_container',
                                                                 "plan": 'intance_plan',
@@ -84,14 +92,10 @@ class APITest(unittest.TestCase):
                                                                 "tenant": 'plan_tenant',
                                                                 "description": 'plan_desc'}
 
-        keystoneclient_mock.return_value.get_storage_endpoints.return_value = {
-            "adminURL": "http://localhost",
-            "publicURL": "http://localhost",
-            "internalURL": "http://localhost"
-        }
+        self._keystoneclient_mock(keystoneclient_mock)
 
         data = "app-host=myapp.cloud.tsuru.io&unit-host=10.4.3.2"
-        response = self.client.post("/resources/intance_name/bind",
+        response = self.client.post("/resources/instance_name/bind",
                                     data=data,
                                     content_type=self.content_type)
 
@@ -116,7 +120,8 @@ class APITest(unittest.TestCase):
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
     @patch("swiftsuru.api.utils.conf")
-    def test_bind_calls_aclapi_through_aclapiclient(self, conf_mock, dbclient_mock, keystoneclient_mock):
+    def test_bind_calls_aclapi_to_liberate_keystone_through_aclapiclient(self, conf_mock, dbclient_mock, keystoneclient_mock):
+        self._keystoneclient_mock(keystoneclient_mock)
         bog = Bogus()
         bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda: ("{}", 200)),
                      method="PUT",
@@ -124,12 +129,34 @@ class APITest(unittest.TestCase):
         url = bog.serve()
         self._mock_confs(url, conf_mock)
         data = "app-host=myapp.cloud.tsuru.io&unit-host=10.4.3.2"
-        response = self.client.post("/resources/intance_name/bind",
+        response = self.client.post("/resources/instance_name/bind",
                                     data=data,
                                     content_type=self.content_type)
 
         self.assertEqual(response.status_code, 201)
         self.assertIn("/api/ipv4/acl/10.4.3.2/24", bog.called_paths)
+
+    @patch("swiftsuru.api.KeystoneClient")
+    @patch("swiftsuru.api.SwiftsuruDBClient")
+    @patch("swiftsuru.api.utils.conf")
+    def test_bind_calls_aclapi_to_liberate_swift_through_aclapiclient(self, conf_mock, dbclient_mock, keystoneclient_mock):
+        self._keystoneclient_mock(keystoneclient_mock)
+        Bogus.called_paths = []
+        bog = Bogus()
+        bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda: ("{}", 200)),
+                     method="PUT",
+                     headers={"Location": "/api/jobs/1"})
+        url = bog.serve()
+        self._mock_confs(url, conf_mock)
+        data = "app-host=myapp.cloud.tsuru.io&unit-host=10.4.3.2"
+        response = self.client.post("/resources/instance_name/bind",
+                                    data=data,
+                                    content_type=self.content_type)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("/api/ipv4/acl/10.4.3.2/24", bog.called_paths)
+        count = Counter(bog.called_paths)
+        self.assertEqual(count["/api/ipv4/acl/10.4.3.2/24"], 2)
 
     @patch("swiftclient.client.Connection.get_auth")
     def test_unbind_returns_200(self, get_auth_mock):
