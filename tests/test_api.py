@@ -161,7 +161,7 @@ class APITest(unittest.TestCase):
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
     @patch("swiftsuru.api.conf")
-    def test_doesnt_call_aclapi_when_conf_is_false(self, conf_mock, dbclient_mock, keystoneclient_mock):
+    def test_bind_doesnt_call_aclapi_when_conf_is_false(self, conf_mock, dbclient_mock, keystoneclient_mock):
         self._keystoneclient_mock(keystoneclient_mock)
         Bogus.called_paths = []
         bog = Bogus()
