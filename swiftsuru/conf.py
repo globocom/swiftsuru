@@ -18,8 +18,15 @@ MONGODB_DATABASE = environ.get("MONGODB_DATABASE", "swiftsuru")
 
 # keystone settings
 KEYSTONE_URL = environ.get("KEYSTONE_URL", "https://127.0.0.1:5000/v2.0")
+KEYSTONE_HOST = KEYSTONE_URL.split("://")[1].split(":")[0]
+KEYSTONE_PORT = KEYSTONE_URL.split("://")[1].split(":")[1].split("/")[0]
 KEYSTONE_USER = environ.get("KEYSTONE_USER", "user")
 KEYSTONE_VERSION = 2
 KEYSTONE_PASSWORD = environ.get("KEYSTONE_PASSWORD", "password")
 KEYSTONE_DEFAULT_ROLE = "_member_"
 KEYSTONE_SSL_NO_VERIFY = environ.get("KEYSTONE_SSL_NO_VERIFY", True)
+
+# aclapi settings
+ACLAPI_URL = environ.get("ACLAPI_URL", "https://aclapi.com")
+ACLAPI_USER = environ.get("ACLAPI_USER", "thatsme")
+ACLAPI_PASS = environ.get("ACLAPI_PASS", "verysecurepass")
