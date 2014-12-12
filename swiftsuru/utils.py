@@ -48,11 +48,11 @@ def permit_keystone_access(unit_host):
     )
 
 
-def permit_swift_access(unit_host, swift_host, swift_port):
-    l4_opts = L4Opts("eq", swift_port, "dest")
+def permit_swift_access(unit_host):
+    l4_opts = L4Opts("eq", conf.SWIFT_API_PORT, "dest")
     aclapi_cli().add_tcp_permit_access(
         desc="swift api access (swift service) for tsuru unit: {}".format(unit_host),
         source="{}/24".format(unit_host),
-        dest="{}/32".format(socket.gethostbyname(swift_host)),
+        dest="{}/32".format(socket.gethostbyname(conf.SWIFT_API_HOST)),
         l4_opts=l4_opts
     )
