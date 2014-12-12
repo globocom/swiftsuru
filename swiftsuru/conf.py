@@ -11,6 +11,9 @@ PORT = int(environ.get("PORT", "8888"))
 AUTH_URL = environ.get("SWIFT_AUTH_URL", "http://127.0.0.1:8080/auth/v1")
 USER = environ.get("SWIFT_USER", "test:tester")
 KEY = environ.get("SWIFT_KEY", "testing")
+SWIFT_API = environ.get("SWIFT_API", "http://127.0.0.1:35357")
+SWIFT_API_HOST = SWIFT_API.split("://")[1].split(":")[0]
+SWIFT_API_PORT = SWIFT_API.split("://")[1].split(":")[1].split("/")[0]
 
 # mongo settings
 MONGODB_ENDPOINT = environ.get("MONGODB_ENDPOINT", "127.0.0.1:27017")
