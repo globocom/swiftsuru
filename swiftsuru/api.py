@@ -118,14 +118,7 @@ def remove_instance(instance_name):
     return "", 200
 
 
-@api.route("/resources/<instance_name>/bind", methods=["POST"])
-def bind(instance_name):
-    """
-    Bind a Tsuru APP on a Swift Service Instance.
-
-    Expose all variables needed for an App to connect with Swift and adds a permit
-    access on the used ACL.
-    """
+def _bind(instance_name):
     db_cli = SwiftsuruDBClient()
     instance = db_cli.get_instance(instance_name)
     container = instance.get("container")
@@ -137,7 +130,7 @@ def bind(instance_name):
     keystone = KeystoneClient(tenant=tenant)
     endpoints = keystone.get_storage_endpoints()
 
-    response = {
+    return {
         "SWIFT_ADMIN_URL": '{}/{}'.format(endpoints["adminURL"],
                                           container),
         "SWIFT_PUBLIC_URL": '{}/{}'.format(endpoints["publicURL"],
@@ -151,12 +144,28 @@ def bind(instance_name):
         "SWIFT_PASSWORD": instance.get("password")
     }
 
+
+@api.route("/resources/<instance_name>/bind-app", methods=["POST"])
+def bind_app(instance_name):
+    """
+    Bind a Tsuru APP on a Swift Service Instance.
+
+    Expose all variables needed for an App to connect with Swift and adds a permit
+    access on the used ACL.
+    """
+    response = _bind(instance_name)
+
+    return jsonify(response), 201
+
+
+@api.route("/resources/<instance_name>/bind", methods=["POST"])
+def bind_unit(instance_name):
+    response = _bind(instance_name)
+
     if conf.ENABLE_ACLAPI:
         unit_host = request.form.get("unit-host")
         utils.permit_keystone_access(unit_host)
-        swift_host = endpoints["adminURL"].split("://")[1]
-        swift_host, swift_port = swift_host.split(":")
-        utils.permit_swift_access(unit_host, swift_host, swift_port)
+        utils.permit_swift_access(unit_host)
 
     return jsonify(response), 201
 
