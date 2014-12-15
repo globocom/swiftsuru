@@ -118,7 +118,7 @@ def remove_instance(instance_name):
     return "", 200
 
 
-def _bind(instance_name):
+def _bind(instance_name, app_host=None):
     db_cli = SwiftsuruDBClient()
     instance = db_cli.get_instance(instance_name)
     container = instance.get("container")
@@ -129,6 +129,16 @@ def _bind(instance_name):
 
     keystone = KeystoneClient(tenant=tenant)
     endpoints = keystone.get_storage_endpoints()
+
+    if app_host:
+        try:
+            client = SwiftClient(keystone)
+            client.set_cors(container, app_host)
+        except Exception, err:
+            # TODO: logging
+            # TODO: remove user created on Keystone
+            msg = 'ERROR: Fail to set CORS to container on Swift: {}'.format(err)
+            return "Failed to create instance\n{}".format(msg), 500
 
     return {
         "SWIFT_ADMIN_URL": '{}/{}'.format(endpoints["adminURL"],
@@ -153,7 +163,12 @@ def bind_app(instance_name):
     Expose all variables needed for an App to connect with Swift and adds a permit
     access on the used ACL.
     """
-    response = _bind(instance_name)
+    data = request.form
+
+    app_host = data["app-host"]
+    app_host = app_host if not isinstance(app_host, list) else app_host[0]
+
+    response = _bind(instance_name, app_host)
 
     return jsonify(response), 201
 
