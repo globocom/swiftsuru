@@ -73,10 +73,11 @@ class APITest(unittest.TestCase):
             "internalURL": "http://localhost"
         }
 
+    @patch("swiftsuru.api.SwiftClient")
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
     @patch("swiftsuru.api.utils.conf")
-    def test_bind_app_export_swift_enviroments_and_returns_201(self, conf_mock, dbclient_mock, keystoneclient_mock):
+    def test_bind_app_export_swift_enviroments_and_returns_201(self, conf_mock, dbclient_mock, keystoneclient_mock, swiftclient_mock):
         bog = Bogus()
         bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda: ("{}", 200)),
                      method="PUT",
@@ -119,27 +120,18 @@ class APITest(unittest.TestCase):
         for key in expected_keys:
             self.assertIn(key, computed.keys())
 
-    @patch("swiftsuru.swift_client.SwiftClient.set_cors")
+    @patch("swiftsuru.api.SwiftClient.set_cors")
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
     @patch("swiftsuru.api.utils.conf")
     def test_bind_app_should_set_cors(self, conf_mock, dbclient_mock, keystoneclient_mock, set_cors_mock):
-        bog = Bogus()
-        bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda: ("{}", 200)),
-                     method="PUT",
-                     headers={"Location": "/api/jobs/1"})
-        url = bog.serve()
-        self._mock_confs(url, conf_mock)
+
         dbclient_mock.return_value.get_instance.return_value = {"name": 'instance_name',
                                                                 "team": 'intance_team',
                                                                 "container": 'intance_container',
                                                                 "plan": 'intance_plan',
                                                                 "user": 'intance_user',
                                                                 "password": 'instance_password'}
-
-        dbclient_mock.return_value.get_plan.return_value = {"name": 'plan_name',
-                                                                "tenant": 'plan_tenant',
-                                                                "description": 'plan_desc'}
 
         self._keystoneclient_mock(keystoneclient_mock)
 
@@ -149,28 +141,15 @@ class APITest(unittest.TestCase):
                              content_type=self.content_type)
 
         self.assertTrue(set_cors_mock.called)
+        set_cors_mock.assert_called_once_with('intance_container', u'myapp.cloud.tsuru.io')
 
-    @patch("swiftsuru.swift_client.SwiftClient.set_cors")
+    @patch("swiftsuru.api.SwiftClient.set_cors")
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
-    @patch("swiftsuru.api.utils.conf")
+    @patch("swiftsuru.api.conf")
     def test_bind_unit_should_not_set_cors(self, conf_mock, dbclient_mock, keystoneclient_mock, set_cors_mock):
-        bog = Bogus()
-        bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda: ("{}", 200)),
-                     method="PUT",
-                     headers={"Location": "/api/jobs/1"})
-        url = bog.serve()
-        self._mock_confs(url, conf_mock)
-        dbclient_mock.return_value.get_instance.return_value = {"name": 'instance_name',
-                                                                "team": 'intance_team',
-                                                                "container": 'intance_container',
-                                                                "plan": 'intance_plan',
-                                                                "user": 'intance_user',
-                                                                "password": 'instance_password'}
 
-        dbclient_mock.return_value.get_plan.return_value = {"name": 'plan_name',
-                                                                "tenant": 'plan_tenant',
-                                                                "description": 'plan_desc'}
+        conf_mock.ENABLE_ACLAPI = False
 
         self._keystoneclient_mock(keystoneclient_mock)
 
@@ -254,9 +233,9 @@ class APITest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(content, 'WORKING')
 
-    @patch("swiftsuru.dbclient.SwiftsuruDBClient.list_plans")
-    def test_list_plan(self, list_plans_mock):
-        list_plans_mock.return_value = [{'name': 'Infra',
+    @patch("swiftsuru.api.SwiftsuruDBClient")
+    def test_list_plan(self, dbclient_mock):
+        dbclient_mock.return_value.list_plans.return_value = [{'name': 'Infra',
                                          'description': 'Tenant para Infra'}]
 
         response = self.client.get("/resources/plans")
