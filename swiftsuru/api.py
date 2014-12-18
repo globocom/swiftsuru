@@ -121,6 +121,10 @@ def remove_instance(instance_name):
 def _bind(instance_name, app_host=None):
     db_cli = SwiftsuruDBClient()
     instance = db_cli.get_instance(instance_name)
+
+    if not instance:
+        return "Instance not found", 500
+
     container = instance.get("container")
     plan = instance.get("plan")
 
@@ -140,7 +144,7 @@ def _bind(instance_name, app_host=None):
             msg = 'ERROR: Fail to set CORS to container on Swift: {}'.format(err)
             return "Failed to create instance\n{}".format(msg), 500
 
-    return {
+    response = {
         "SWIFT_ADMIN_URL": '{}/{}'.format(endpoints["adminURL"],
                                           container),
         "SWIFT_PUBLIC_URL": '{}/{}'.format(endpoints["publicURL"],
@@ -153,6 +157,8 @@ def _bind(instance_name, app_host=None):
         "SWIFT_USER": instance.get("user"),
         "SWIFT_PASSWORD": instance.get("password")
     }
+
+    return jsonify(response), 201
 
 
 @api.route("/resources/<instance_name>/bind-app", methods=["POST"])
@@ -168,9 +174,9 @@ def bind_app(instance_name):
     app_host = data["app-host"]
     app_host = app_host if not isinstance(app_host, list) else app_host[0]
 
-    response = _bind(instance_name, app_host)
+    response, status_code = _bind(instance_name, app_host)
 
-    return jsonify(response), 201
+    return response, status_code
 
 
 @api.route("/resources/<instance_name>/bind", methods=["POST"])

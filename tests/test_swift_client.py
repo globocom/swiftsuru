@@ -91,7 +91,7 @@ class SwiftClientTest(unittest.TestCase):
             self.assertIn("/v1/AUTH_user/my_container", b.called_paths)
 
     @patch("swiftclient.client.Connection.get_auth")
-    def test_set_cors_on_container_http_request(self, get_auth_mock):
+    def test_set_cors_http_request(self, get_auth_mock):
         b = Bogus()
         url = b.serve()
         get_auth_mock.return_value = ("{}/v1/AUTH_user".format(url), "AUTH_t0k3n")
@@ -102,7 +102,7 @@ class SwiftClientTest(unittest.TestCase):
 
     @patch("swiftclient.client.Connection.get_auth")
     @patch("swiftclient.client.Connection.post_container")
-    def test_set_cors_should_set_one_url(self, post_container_mock, get_auth_mock):
+    def test_set_cors_should_set_url(self, post_container_mock, get_auth_mock):
         get_auth_mock.return_value = ("http://somehost/v1/AUTH_user", "AUTH_t0k3n")
 
         cli = SwiftClient()
@@ -110,3 +110,31 @@ class SwiftClientTest(unittest.TestCase):
 
         expected_header = {'X-Container-Meta-Access-Control-Allow-Origin': 'http://myhost'}
         post_container_mock.assert_called_once_with('mycontainer', expected_header)
+
+    @patch("swiftclient.client.Connection.get_auth")
+    @patch("swiftclient.client.Connection.head_container")
+    @patch("swiftclient.client.Connection.post_container")
+    def test_set_cors_appending_url_to_a_pre_existent_cors_header(self, post_container_mock, head_container_mock, get_auth_mock):
+        get_auth_mock.return_value = ("http://somehost/v1/AUTH_user", "AUTH_t0k3n")
+        head_container_mock.return_value = {
+            'x-container-meta-access-control-allow-origin': 'http://somehost'
+        }
+
+        cli = SwiftClient()
+        cli.set_cors('mycontainer', 'http://myhost')
+
+        expected_header = {'X-Container-Meta-Access-Control-Allow-Origin': 'http://somehost http://myhost'}
+        post_container_mock.assert_called_once_with('mycontainer', expected_header)
+
+    @patch("swiftclient.client.Connection.get_auth")
+    @patch("swiftclient.client.Connection.head_container")
+    def test_get_cors_of_a_container(self, head_container_mock, get_auth_mock):
+        get_auth_mock.return_value = ("http://somehost/v1/AUTH_user", "AUTH_t0k3n")
+        head_container_mock.return_value = {
+            'x-container-meta-access-control-allow-origin': 'http://somehost'
+        }
+
+        cli = SwiftClient()
+        computed_cors = cli.get_cors('mycontainer')
+
+        self.assertEqual('http://somehost', computed_cors)

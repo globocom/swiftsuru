@@ -52,6 +52,16 @@ class SwiftClient(object):
     def remove_container(self, name, headers):
         self.conn.post_container(name, headers)
 
-    def set_cors(self, container, url):
+    def set_cors(self, container, url, append=True):
+        if append:
+            cors_urls = self.get_cors(container)
+            url = '{} {}'.format(cors_urls, url)
+
         headers = {'X-Container-Meta-Access-Control-Allow-Origin': url}
         self.conn.post_container(container, headers)
+
+    def get_cors(self, container):
+        headers = self.conn.head_container(container)
+        cors_header = 'x-container-meta-access-control-allow-origin'
+
+        return headers.get(cors_header)
