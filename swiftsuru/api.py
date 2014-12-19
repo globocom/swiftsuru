@@ -7,7 +7,6 @@ http://docs.tsuru.io/en/0.5.3/services/api.html
 http://docs.tsuru.io/en/0.5.3/services/build.html
 """
 import json
-# import socket
 
 from flask import Response, Blueprint, request, jsonify
 
@@ -15,7 +14,6 @@ from swiftsuru import utils, conf
 from swiftsuru.keystone_client import KeystoneClient
 from swiftsuru.swift_client import SwiftClient
 from swiftsuru.dbclient import SwiftsuruDBClient
-# from aclapiclient import L4Opts
 
 
 api = Blueprint("swift", __name__)
