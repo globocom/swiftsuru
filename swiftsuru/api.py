@@ -166,6 +166,7 @@ def bind_unit(instance_name):
         unit_host = request.form.get("unit-host")
         utils.permit_keystone_access(unit_host)
         utils.permit_swift_access(unit_host)
+        utils.aclapi_cli().commit()
 
     return jsonify(response), 201
 
