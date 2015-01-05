@@ -29,6 +29,15 @@ def generate_password(pw_length=8):
     return mypw
 
 
+def format_for_network_mask(ip):
+    """
+    Replaces last bit of an ip with 0.
+    """
+    m = ip.split(".")
+    m[-1] = "0"
+    return ".".join(m)
+
+
 aclcli = None
 
 
@@ -41,11 +50,11 @@ def aclapi_cli():
 
 def permit_keystone_access(unit_host):
     syslog.syslog("Permitting access to keystone host...")
-    syslog.syslog("Host is: {} port: ; unit host is: {}".format(conf.KEYSTONE_HOST, conf.KEYSTONE_PORT, unit_host))
+    syslog.syslog("Host is: {} port: {}; unit host is: {}".format(conf.KEYSTONE_HOST, conf.KEYSTONE_PORT, unit_host))
     l4_opts = L4Opts("eq", conf.KEYSTONE_PORT, "dest")
     resp = aclapi_cli().add_tcp_permit_access(
         desc="keystone access (swift service) for tsuru unit: {}".format(unit_host),
-        source="{}/24".format(unit_host),
+        source="{}/24".format(format_for_network_mask(unit_host)),
         dest="{}/32".format(socket.gethostbyname(conf.KEYSTONE_HOST)),
         l4_opts=l4_opts
     )
@@ -54,11 +63,11 @@ def permit_keystone_access(unit_host):
 
 def permit_swift_access(unit_host):
     syslog.syslog("Permitting access to swift host...")
-    syslog.syslog("Host is: {} port: ; unit host is: {}".format(conf.SWIFT_API_HOST, conf.SWIFT_API_PORT, unit_host))
+    syslog.syslog("Host is: {} port: {}; unit host is: {}".format(conf.SWIFT_API_HOST, conf.SWIFT_API_PORT, unit_host))
     l4_opts = L4Opts("eq", conf.SWIFT_API_PORT, "dest")
     resp = aclapi_cli().add_tcp_permit_access(
         desc="swift api access (swift service) for tsuru unit: {}".format(unit_host),
-        source="{}/24".format(unit_host),
+        source="{}/24".format(format_for_network_mask(unit_host)),
         dest="{}/32".format(socket.gethostbyname(conf.SWIFT_API_HOST)),
         l4_opts=l4_opts
     )

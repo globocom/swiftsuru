@@ -44,6 +44,12 @@ class UtilsTest(unittest.TestCase):
 
         self.assertTrue(re.match('^[a-zA-Z0-9!@#$%^&*]+$', computed) is not None)
 
+    def test_format_for_network_mask_should_exanche_last_ip_bit_to_zero(self):
+        mask = "10.70.20.512"
+        expected = "10.70.20.0"
+        result = utils.format_for_network_mask(mask)
+        self.assertEqual(result, expected)
+
     @patch("swiftsuru.utils.Client")
     @patch("swiftsuru.utils.L4Opts")
     def test_permit_keystone_access_should_call_aclapiclient_with_keystone_ip_endpoint(self, l4_opts_mock, aclapi_mock):
@@ -54,7 +60,7 @@ class UtilsTest(unittest.TestCase):
         utils.permit_keystone_access(unit_host="10.10.1.2")
         func_mock.assert_called_once_with(
             desc="keystone access (swift service) for tsuru unit: {}".format("10.10.1.2"),
-            source="10.10.1.2/24",
+            source="10.10.1.0/24",
             dest="127.0.0.1/32",
             l4_opts=l4_opts_obj
         )
@@ -80,7 +86,7 @@ class UtilsTest(unittest.TestCase):
         utils.permit_swift_access(unit_host="10.10.2.3")
         func_mock.assert_called_once_with(
             desc="swift api access (swift service) for tsuru unit: {}".format("10.10.2.3"),
-            source="10.10.2.3/24",
+            source="10.10.2.0/24",
             dest="10.2.3.4/32",
             l4_opts=l4_opts_obj
         )

@@ -3,4 +3,4 @@ Flask==0.10.1
 python-swiftclient==2.3.1
 pymongo==2.7.2
 python-keystoneclient==0.11.2
-python-aclapiclient==0.1.5
+python-aclapiclient==0.1.6
