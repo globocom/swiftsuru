@@ -101,9 +101,11 @@ class SwiftClientTest(unittest.TestCase):
             self.assertIn("/v1/AUTH_user/my_container", b.called_paths)
 
     @patch("swiftclient.client.Connection.get_auth")
+    @patch("swiftclient.client.Connection.head_container")
     @patch("swiftclient.client.Connection.post_container")
-    def test_set_cors_should_set_url(self, post_container_mock, get_auth_mock):
+    def test_set_cors_should_set_url(self, post_container_mock, head_container_mock, get_auth_mock):
         get_auth_mock.return_value = ("http://somehost/v1/AUTH_user", "AUTH_t0k3n")
+        head_container_mock.return_value = {}
 
         cli = SwiftClient()
         cli.set_cors('mycontainer', 'http://myhost')

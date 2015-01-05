@@ -55,7 +55,7 @@ class SwiftClient(object):
     def set_cors(self, container, url, append=True):
         if append:
             cors_urls = self.get_cors(container)
-            url = '{} {}'.format(cors_urls, url)
+            url = '{} {}'.format(cors_urls, url).strip()
 
         headers = {'X-Container-Meta-Access-Control-Allow-Origin': url}
         self.conn.post_container(container, headers)
@@ -64,4 +64,4 @@ class SwiftClient(object):
         headers = self.conn.head_container(container)
         cors_header = 'x-container-meta-access-control-allow-origin'
 
-        return headers.get(cors_header)
+        return headers.get(cors_header, '')
