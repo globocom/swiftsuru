@@ -125,7 +125,7 @@ class APITest(unittest.TestCase):
     def test_bind_unit_calls_aclapi_to_liberate_keystone_through_aclapiclient(self, conf_mock, dbclient_mock, keystoneclient_mock):
         self._keystoneclient_mock(keystoneclient_mock)
         bog = Bogus()
-        bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda: ("{}", 200)),
+        bog.register(("/api/ipv4/acl/10.4.3.0/32", lambda: ("{}", 200)),
                      method="PUT",
                      headers={"Location": "/api/jobs/1"})
         url = bog.serve()
@@ -136,7 +136,7 @@ class APITest(unittest.TestCase):
                                     content_type=self.content_type)
 
         self.assertEqual(response.status_code, 201)
-        self.assertIn("/api/ipv4/acl/10.4.3.2/24", bog.called_paths)
+        self.assertIn("/api/ipv4/acl/10.4.3.0/32", bog.called_paths)
 
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
@@ -145,7 +145,7 @@ class APITest(unittest.TestCase):
         self._keystoneclient_mock(keystoneclient_mock)
         Bogus.called_paths = []
         bog = Bogus()
-        bog.register(("/api/ipv4/acl/10.4.3.2/24", lambda: ("{}", 200)),
+        bog.register(("/api/ipv4/acl/10.4.3.0/32", lambda: ("{}", 200)),
                      method="PUT",
                      headers={"Location": "/api/jobs/1"})
         url = bog.serve()
@@ -156,9 +156,9 @@ class APITest(unittest.TestCase):
                                     content_type=self.content_type)
 
         self.assertEqual(response.status_code, 201)
-        self.assertIn("/api/ipv4/acl/10.4.3.2/24", bog.called_paths)
+        self.assertIn("/api/ipv4/acl/10.4.3.0/32", bog.called_paths)
         count = Counter(bog.called_paths)
-        self.assertEqual(count["/api/ipv4/acl/10.4.3.2/24"], 2)
+        self.assertEqual(count["/api/ipv4/acl/10.4.3.0/32"], 2)
 
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")

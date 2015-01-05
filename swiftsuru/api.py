@@ -148,8 +148,7 @@ def bind_app(instance_name):
     """
     Bind a Tsuru APP on a Swift Service Instance.
 
-    Expose all variables needed for an App to connect with Swift and adds a permit
-    access on the used ACL.
+    Expose all variables needed for an App to connect with Swift.
     """
     response = _bind(instance_name)
 
@@ -158,6 +157,9 @@ def bind_app(instance_name):
 
 @api.route("/resources/<instance_name>/bind", methods=["POST"])
 def bind_unit(instance_name):
+    """
+    Binds a Tsuru unit to Swift, also adds a permit access on the used ACL.
+    """
     response = _bind(instance_name)
 
     if conf.ENABLE_ACLAPI:
