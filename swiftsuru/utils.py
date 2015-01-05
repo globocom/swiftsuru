@@ -55,7 +55,7 @@ def permit_keystone_access(unit_host):
     resp = aclapi_cli().add_tcp_permit_access(
         desc="keystone access (swift service) for tsuru unit: {}".format(unit_host),
         source="{}/24".format(format_for_network_mask(unit_host)),
-        dest="{}/32".format(format_for_network_mask(socket.gethostbyname(conf.KEYSTONE_HOST))),
+        dest="{}/32".format(socket.gethostbyname(conf.KEYSTONE_HOST)),
         l4_opts=l4_opts
     )
     syslog.syslog("Response is: {} - {}".format(resp.status_code, resp.content))
@@ -68,7 +68,7 @@ def permit_swift_access(unit_host):
     resp = aclapi_cli().add_tcp_permit_access(
         desc="swift api access (swift service) for tsuru unit: {}".format(unit_host),
         source="{}/24".format(format_for_network_mask(unit_host)),
-        dest="{}/32".format(format_for_network_mask(socket.gethostbyname(conf.SWIFT_API_HOST))),
+        dest="{}/32".format(socket.gethostbyname(conf.SWIFT_API_HOST)),
         l4_opts=l4_opts
     )
     syslog.syslog("Response is: {} - {}".format(resp.status_code, resp.content))

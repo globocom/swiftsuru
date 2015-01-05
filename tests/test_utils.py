@@ -61,7 +61,7 @@ class UtilsTest(unittest.TestCase):
         func_mock.assert_called_once_with(
             desc="keystone access (swift service) for tsuru unit: {}".format("10.10.1.2"),
             source="10.10.1.0/24",
-            dest="127.0.0.0/32",
+            dest="127.0.0.1/32",
             l4_opts=l4_opts_obj
         )
 
@@ -87,7 +87,7 @@ class UtilsTest(unittest.TestCase):
         func_mock.assert_called_once_with(
             desc="swift api access (swift service) for tsuru unit: {}".format("10.10.2.3"),
             source="10.10.2.0/24",
-            dest="10.2.3.0/32",
+            dest="10.2.3.4/32",
             l4_opts=l4_opts_obj
         )
 
