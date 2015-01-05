@@ -54,7 +54,7 @@ def permit_keystone_access(unit_host):
     l4_opts = L4Opts("eq", conf.KEYSTONE_PORT, "dest")
     resp = aclapi_cli().add_tcp_permit_access(
         desc="keystone access (swift service) for tsuru unit: {}".format(unit_host),
-        source="{}/32".format(format_for_network_mask(unit_host)),
+        source="{}/24".format(format_for_network_mask(unit_host)),
         dest="{}/32".format(format_for_network_mask(socket.gethostbyname(conf.KEYSTONE_HOST))),
         l4_opts=l4_opts
     )
@@ -67,7 +67,7 @@ def permit_swift_access(unit_host):
     l4_opts = L4Opts("eq", conf.SWIFT_API_PORT, "dest")
     resp = aclapi_cli().add_tcp_permit_access(
         desc="swift api access (swift service) for tsuru unit: {}".format(unit_host),
-        source="{}/32".format(format_for_network_mask(unit_host)),
+        source="{}/24".format(format_for_network_mask(unit_host)),
         dest="{}/32".format(format_for_network_mask(socket.gethostbyname(conf.SWIFT_API_HOST))),
         l4_opts=l4_opts
     )
