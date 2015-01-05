@@ -148,7 +148,6 @@ class APITest(unittest.TestCase):
     @patch("swiftsuru.api.SwiftsuruDBClient")
     @patch("swiftsuru.api.conf")
     def test_bind_unit_should_not_set_cors(self, conf_mock, dbclient_mock, keystoneclient_mock, set_cors_mock):
-        # import ipdb;ipdb.set_trace()
         conf_mock.ENABLE_ACLAPI = False
 
         self._keystoneclient_mock(keystoneclient_mock)
@@ -159,7 +158,6 @@ class APITest(unittest.TestCase):
                              content_type=self.content_type)
 
         self.assertFalse(set_cors_mock.called)
-
 
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
