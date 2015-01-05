@@ -181,7 +181,7 @@ def bind_unit(instance_name):
     """
     Binds a Tsuru unit to Swift, also adds a permit access on the used ACL.
     """
-    response = _bind(instance_name)
+    response, status_code = _bind(instance_name)
 
     if conf.ENABLE_ACLAPI:
         unit_host = request.form.get("unit-host")
@@ -189,7 +189,7 @@ def bind_unit(instance_name):
         utils.permit_swift_access(unit_host)
         utils.aclapi_cli().commit()
 
-    return jsonify(response), 201
+    return response, status_code
 
 
 @api.route("/resources/<instance_name>/bind", methods=["DELETE"])
