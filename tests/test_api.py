@@ -224,6 +224,29 @@ class APITest(unittest.TestCase):
         response = self.client.delete("/resources/my-swift/bind", data=data, content_type=self.content_type)
         self.assertEqual(response.status_code, 200)
 
+    @patch("swiftsuru.api.KeystoneClient")
+    @patch('swiftsuru.api.SwiftClient.unset_cors')
+    @patch("swiftsuru.api.SwiftsuruDBClient")
+    @patch("swiftsuru.api.utils.conf")
+    def test_unbind_app_calls_unset_cors(self, conf_mock, dbclient_mock, unset_cors_mock, keystoneclient_mock):
+
+        dbclient_mock.return_value.get_instance.return_value = {"name": 'instance_name',
+                                                                "team": 'intance_team',
+                                                                "container": 'intance_container',
+                                                                "plan": 'intance_plan',
+                                                                "user": 'intance_user',
+                                                                "password": 'instance_password'}
+
+        self._keystoneclient_mock(keystoneclient_mock)
+
+        data = "app-host=myapp.cloud.tsuru.io"
+        _ = self.client.delete("/resources/instance_name/bind-app",
+                               data=data,
+                               content_type=self.content_type)
+
+        self.assertTrue(unset_cors_mock.called)
+        unset_cors_mock.assert_called_once_with('intance_container', u'myapp.cloud.tsuru.io')
+
     def test_healthcheck(self):
         response = self.client.get("/healthcheck")
         content = response.get_data()

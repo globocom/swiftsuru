@@ -192,10 +192,54 @@ def bind_unit(instance_name):
     return response, status_code
 
 
-@api.route("/resources/<instance_name>/bind", methods=["DELETE"])
-def unbind(instance_name):
+def _unbind(instance_name, app_host):
+    """
+    Removes app-host from the container CORS headers
+    """
+    db_cli = SwiftsuruDBClient()
+    instance = db_cli.get_instance(instance_name)
+
+    if not instance:
+        return "Instance not found", 404
+
+    container = instance.get("container")
+    plan = instance.get("plan")
+
+    db_plan = db_cli.get_plan(plan)
+    tenant = db_plan.get("tenant")
+
+    keystone = KeystoneClient(tenant=tenant)
+
+    try:
+        client = SwiftClient(keystone)
+        client.unset_cors(container, app_host)
+    except Exception, err:
+        # TODO: logging
+        # TODO: remove user created on Keystone
+        msg = 'ERROR: Fail to set CORS to container on Swift: {}'.format(err)
+        return "Failed to unbind app\n{}".format(msg), 500
+
+    return '', 200
+
+
+@api.route("/resources/<instance_name>/bind-app", methods=["DELETE"])
+def unbind_app(instance_name):
     """
     Unbind a Tsuru APP on a Swift Service Instance.
+    """
+    data = request.form
+
+    app_host = data["app-host"]
+    app_host = app_host if not isinstance(app_host, list) else app_host[0]
+
+    response, status_code = _unbind(instance_name, app_host)
+    return response, status_code
+
+
+@api.route("/resources/<instance_name>/bind", methods=["DELETE"])
+def unbind_unit(instance_name):
+    """
+    Unbind a Tsuru APP unit on a Swift Service Instance.
     """
     return "", 200
 
