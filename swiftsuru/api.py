@@ -44,11 +44,12 @@ def add_instance():
     if not plan:
         return "You must choose a plan", 500
 
-    db_plan = db_cli.get_plan(plan)
-    tenant = db_plan.get("tenant")
-
-    if not tenant:
+    try:
+        db_plan = db_cli.get_plan(plan)
+        tenant = db_plan.get("tenant")
+    except AttributeError:
         return "Invalid plan", 500
+
 
     name = data["name"]
     name = name if not isinstance(name, list) else name[0]
