@@ -7,6 +7,7 @@ http://docs.tsuru.io/en/0.5.3/services/api.html
 http://docs.tsuru.io/en/0.5.3/services/build.html
 """
 import json
+import syslog
 
 from flask import Response, Blueprint, request, jsonify
 
@@ -120,13 +121,15 @@ def remove_instance(instance_name):
 
 def _bind(instance_name, app_host=None):
 
-    logger.info('Starting bind to instance <{}>'.format(instance_name))
+    # logger.info('Starting bind to instance <{}>'.format(instance_name))
+    syslog.syslog('Starting bind to instance <{}>'.format(instance_name))
 
     db_cli = SwiftsuruDBClient()
     instance = db_cli.get_instance(instance_name)
 
     if not instance:
-        logger.info('Instance <{}> not found on MongoDB'.format(instance_name))
+        # logger.info('Instance <{}> not found on MongoDB'.format(instance_name))
+        syslog.syslog('Instance <{}> not found on MongoDB'.format(instance_name))
         return "Instance not found", 500
 
     container = instance.get("container")
@@ -136,7 +139,8 @@ def _bind(instance_name, app_host=None):
     tenant = db_plan.get("tenant")
 
     log_msg = 'Instance found: container={}, plan={}, tenant={}'
-    logger.debug(log_msg.format(container, plan, tenant))
+    # logger.debug(log_msg.format(container, plan, tenant))
+    syslog.syslog(log_msg.format(container, plan, tenant))
 
     keystone = KeystoneClient(tenant=tenant)
     endpoints = keystone.get_storage_endpoints()
@@ -151,7 +155,8 @@ def _bind(instance_name, app_host=None):
         except Exception, err:
             # TODO: remove user created on Keystone
             err_msg = 'Fail to set CORS to container on Swift: {}'.format(err)
-            logger.error(err_msg)
+            # logger.error(err_msg)
+            syslog.syslog(err_msg)
 
             return "Internal error: Failed to bind instance", 500
 
@@ -169,7 +174,8 @@ def _bind(instance_name, app_host=None):
         "SWIFT_PASSWORD": instance.get("password")
     }
 
-    logger.info('Bind to <{}> finished'.format(instance_name))
+    # logger.info('Bind to <{}> finished'.format(instance_name))
+    syslog.syslog('Bind to <{}> finished'.format(instance_name))
 
     return jsonify(response), 201
 
