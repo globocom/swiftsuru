@@ -42,8 +42,6 @@ def add_instance():
     plan = data.get("plan", "")
     plan = plan if not isinstance(plan, list) else plan[0]
 
-    import ipdb;ipdb.set_trace()
-
     try:
         db_plan = db_cli.get_plan(plan)
         tenant = db_plan.get("tenant")
