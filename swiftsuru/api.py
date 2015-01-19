@@ -16,7 +16,6 @@ from swiftsuru.swift_client import SwiftClient
 from swiftsuru.dbclient import SwiftsuruDBClient
 
 logger = utils.get_logger(__name__)
-logger.debug("+="*20)
 api = Blueprint("swift", __name__)
 
 
@@ -182,7 +181,6 @@ def bind_app(instance_name):
 
     Expose all variables needed for an App to connect with Swift.
     """
-    logger.debug("="*20)
     data = request.form
 
     app_host = data["app-host"]

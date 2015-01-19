@@ -14,7 +14,7 @@ from swiftsuru import conf
 def get_logger(name):
     logger = logging.getLogger(name)
     logger.addHandler(conf.LOG_HANDLER)
-    # logger.setLevel(conf.LOG_LEVEL)
+    logger.setLevel(conf.LOG_LEVEL)
 
     return logger
 
