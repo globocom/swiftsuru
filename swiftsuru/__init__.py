@@ -10,6 +10,4 @@ app = Flask(__name__)
 app.debug = True
 app.register_blueprint(api.api)
 
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-app.logger.addHandler(handler)
+app.logger.addHandler(conf.LOG_HANDLER)
