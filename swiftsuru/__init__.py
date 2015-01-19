@@ -1,8 +1,6 @@
-import logging
-
 from flask import Flask
 
-from swiftsuru import conf, api
+from swiftsuru import conf, api, utils
 
 
 app = Flask(__name__)
