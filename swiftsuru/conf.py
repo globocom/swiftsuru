@@ -1,7 +1,16 @@
+import logging
+import sys
+
 from os import environ
 
 # Swiftsuru settings
 DEBUG = environ.get("DEBUG", True)
+
+# Logging
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+LOG_HANDLER = handler
+LOG_LEVEL = logging.DEBUG if DEBUG else logging.INFO
 
 # Tsuru settings for running wsig
 HOST = "0.0.0.0"

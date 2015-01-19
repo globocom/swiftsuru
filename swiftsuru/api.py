@@ -15,7 +15,7 @@ from swiftsuru.keystone_client import KeystoneClient
 from swiftsuru.swift_client import SwiftClient
 from swiftsuru.dbclient import SwiftsuruDBClient
 
-
+logger = utils.get_logger(__name__)
 api = Blueprint("swift", __name__)
 
 
@@ -32,24 +32,23 @@ def add_instance():
     try:
         db_cli = SwiftsuruDBClient()
     except Exception, err:
-        # TODO: logging
-        msg = "ERROR: Fail to conect to MongoDB: {}".format(err)
-        return "Failed to create instance\n {}".format(msg), 500
+        err_msg = "Fail to connect to MongoDB: {}".format(err)
+        logger.error(err_msg)
+
+        return "Internal error: Failed to create instance", 500
 
     data = request.form
 
     plan = data.get("plan", "")
     plan = plan if not isinstance(plan, list) else plan[0]
 
-    if not plan:
-        return "You must choose a plan", 500
+    import ipdb;ipdb.set_trace()
 
     try:
         db_plan = db_cli.get_plan(plan)
         tenant = db_plan.get("tenant")
     except AttributeError:
-        return "Invalid plan", 500
-
+        return "You must choose a valid plan", 500
 
     name = data["name"]
     name = name if not isinstance(name, list) else name[0]
@@ -68,9 +67,10 @@ def add_instance():
                              role_name=conf.KEYSTONE_DEFAULT_ROLE,
                              enabled=True)
     except Exception, err:
-        # TODO: logging
-        msg = 'ERROR: Fail to create user on Keystone: {}'.format(err)
-        return "Failed to create instance\n{}".format(msg), 500
+        err_msg = 'Fail to create user on Keystone: {}'.format(err)
+        logger.error(err_msg)
+
+        return "Internal error: Failed to create instance", 500
 
     container_name = utils.generate_container_name()
     tenant_user = "{}:{}".format(tenant, username)
@@ -83,20 +83,22 @@ def add_instance():
         client = SwiftClient(keystone)
         client.create_container(container_name, headers)
     except Exception, err:
-        # TODO: logging
         # TODO: remove user created on Keystone
-        msg = 'ERROR: Fail to create container on Swift: {}'.format(err)
-        return "Failed to create instance\n{}".format(msg), 500
+        err_msg = 'Fail to create container on Swift: {}'.format(err)
+        logger.error(err_msg)
+
+        return "Internal error: Failed to create instance", 500
 
     try:
         db_cli.add_instance(name, team, container_name,
                             plan, username, password)
     except Exception, err:
-        # TODO: logging
         # TODO: remove user created on Keystone
         # TODO: remove container created on Swift
-        print 'ERROR: Fail to add instance on MongoDB: {}'.format(err)
-        return "Failed to create instance", 500
+        err_msg = 'Fail to add instance on MongoDB: {}'.format(err)
+        logger.error(err_msg)
+
+        return "Internal error: Failed to create instance", 500
 
     return "", 201
 
@@ -109,19 +111,24 @@ def remove_instance(instance_name):
     try:
         db_cli = SwiftsuruDBClient()
     except Exception, err:
-        # TODO: logging
-        print "ERROR: Fail to conect to MongoDB: {}".format(err)
-        return "Failed to create instance", 500
+        err_msg = "Fail to connect to MongoDB: {}".format(err)
+        logger.error(err_msg)
+
+        return "Internal error: Failed to remove instance", 500
 
     db_cli.remove_instance(name=instance_name)
     return "", 200
 
 
 def _bind(instance_name, app_host=None):
+
+    logger.info('Starting bind to instance <{}>'.format(instance_name))
+
     db_cli = SwiftsuruDBClient()
     instance = db_cli.get_instance(instance_name)
 
     if not instance:
+        logger.info('Instance <{}> not found on MongoDB'.format(instance_name))
         return "Instance not found", 500
 
     container = instance.get("container")
@@ -130,6 +137,9 @@ def _bind(instance_name, app_host=None):
     db_plan = db_cli.get_plan(plan)
     tenant = db_plan.get("tenant")
 
+    log_msg = 'Instance found: container={}, plan={}, tenant={}'
+    logger.debug(log_msg.format(container, plan, tenant))
+
     keystone = KeystoneClient(tenant=tenant)
     endpoints = keystone.get_storage_endpoints()
 
@@ -137,11 +147,15 @@ def _bind(instance_name, app_host=None):
         try:
             client = SwiftClient(keystone)
             client.set_cors(container, app_host)
+
+            log_msg = 'CORS set on <{}> to <{}>'
+            logger.debug(log_msg.format(container, app_host))
         except Exception, err:
-            # TODO: logging
             # TODO: remove user created on Keystone
-            msg = 'ERROR: Fail to set CORS to container on Swift: {}'.format(err)
-            return "Failed to create instance\n{}".format(msg), 500
+            err_msg = 'Fail to set CORS to container on Swift: {}'.format(err)
+            logger.error(err_msg)
+
+            return "Internal error: Failed to bind instance", 500
 
     response = {
         "SWIFT_ADMIN_URL": '{}/{}'.format(endpoints["adminURL"],
@@ -156,6 +170,8 @@ def _bind(instance_name, app_host=None):
         "SWIFT_USER": instance.get("user"),
         "SWIFT_PASSWORD": instance.get("password")
     }
+
+    logger.info('Bind to <{}> finished'.format(instance_name))
 
     return jsonify(response), 201
 
@@ -215,10 +231,11 @@ def _unbind(instance_name, app_host):
         client = SwiftClient(keystone)
         client.unset_cors(container, app_host)
     except Exception, err:
-        # TODO: logging
         # TODO: remove user created on Keystone
-        msg = 'ERROR: Fail to set CORS to container on Swift: {}'.format(err)
-        return "Failed to unbind app\n{}".format(msg), 500
+        err_msg = 'Fail to set CORS to container on Swift: {}'.format(err)
+        logger.error(err_msg)
+
+        return "Internal error: Failed to unbind app", 500
 
     return '', 200
 

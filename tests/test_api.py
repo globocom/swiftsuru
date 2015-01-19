@@ -39,7 +39,6 @@ class APITest(unittest.TestCase):
         self.assertEqual(kargs['enabled'], True)
         self.assertEqual(kargs['project_name'], 'tenant_name')
 
-
     @patch("swiftsuru.api.SwiftsuruDBClient")
     def test_add_instance_with_an_invalid_plan(self, mock_dbclient):
         mock_dbclient.return_value.get_plan.return_value = None
