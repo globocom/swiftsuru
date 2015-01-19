@@ -1,3 +1,7 @@
+# Disable HTTPS verification warnings.
+from requests.packages import urllib3
+urllib3.disable_warnings()
+
 from flask import Flask
 
 from swiftsuru import conf, api, utils
