@@ -7,6 +7,7 @@ http://docs.tsuru.io/en/0.5.3/services/api.html
 http://docs.tsuru.io/en/0.5.3/services/build.html
 """
 import json
+import socket
 
 from flask import Response, Blueprint, request, jsonify
 
@@ -120,7 +121,8 @@ def remove_instance(instance_name):
 
 def _bind(instance_name, app_host=None):
 
-    logger.info('Starting bind to instance <{}>'.format(instance_name))
+    ip = socket.gethostbyname(socket.gethostname())
+    logger.info('Starting bind to instance <{}> at unit {}'.format(instance_name, ip))
 
     db_cli = SwiftsuruDBClient()
     instance = db_cli.get_instance(instance_name)
@@ -136,7 +138,7 @@ def _bind(instance_name, app_host=None):
     tenant = db_plan.get("tenant")
 
     log_msg = 'Instance found: container={}, plan={}, tenant={}'
-    logger.debug(log_msg.format(container, plan, tenant))
+    logger.info(log_msg.format(container, plan, tenant))
 
     keystone = KeystoneClient(tenant=tenant)
     endpoints = keystone.get_storage_endpoints()
@@ -211,6 +213,10 @@ def _unbind(instance_name, app_host):
     """
     Removes app-host from the container CORS headers
     """
+    ip = socket.gethostbyname(socket.gethostname())
+
+    logger.info('Starting unbind to instance <{}> at unit {}'.format(instance_name, ip))
+
     db_cli = SwiftsuruDBClient()
     instance = db_cli.get_instance(instance_name)
 
