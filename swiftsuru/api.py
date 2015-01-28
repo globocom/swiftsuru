@@ -99,6 +99,7 @@ def add_instance():
 
         return "Internal error: Failed to create instance", 500
 
+    logger.info('service-add: Returning response status code <201>')
     return "", 201
 
 
@@ -190,6 +191,7 @@ def bind_app(instance_name):
 
     response, status_code = _bind(instance_name, app_host)
 
+    logger.info('bind-app: Returning response status code <{}>'.format(status_code))
     return response, status_code
 
 
@@ -206,6 +208,7 @@ def bind_unit(instance_name):
         utils.permit_swift_access(unit_host)
         utils.aclapi_cli().commit()
 
+    logger.info('bind-unit: Returning response status code <{}>'.format(status_code))
     return response, status_code
 
 
