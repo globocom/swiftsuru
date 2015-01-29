@@ -204,6 +204,9 @@ def bind_unit(instance_name):
 
     if conf.ENABLE_ACLAPI:
         unit_host = request.form.get("unit-host")
+
+        logger.info('Starting ACL API for unit host <{}>'.format(unit_host))
+
         utils.permit_keystone_access(unit_host)
         utils.permit_swift_access(unit_host)
         utils.aclapi_cli().commit()
