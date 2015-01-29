@@ -211,6 +211,8 @@ def bind_unit(instance_name):
         utils.permit_swift_access(unit_host)
         utils.aclapi_cli().commit()
 
+        logger.info('Finished ACL API for unit host <{}>'.format(unit_host))
+
     logger.info('bind-unit: Returning response status code <{}>'.format(status_code))
     return response, status_code
 
