@@ -5,7 +5,6 @@ import logging
 import os
 import random
 import socket
-import syslog
 
 from aclapiclient import Client, L4Opts
 from swiftsuru import conf
