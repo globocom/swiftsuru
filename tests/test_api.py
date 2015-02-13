@@ -1,7 +1,8 @@
 import json
+import logging
 import unittest
 from collections import Counter
-from mock import patch
+from mock import patch, Mock
 from bogus.server import Bogus
 
 from swiftsuru import app, conf
@@ -13,6 +14,8 @@ class APITest(unittest.TestCase):
         self.maxDiff = None
         self.client = app.test_client()
         self.content_type = "application/x-www-form-urlencoded"
+
+        logging.disable(logging.CRITICAL)
 
     @patch("swiftsuru.api.SwiftsuruDBClient")
     @patch("swiftsuru.api.SwiftClient")
@@ -171,8 +174,9 @@ class APITest(unittest.TestCase):
 
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
-    @patch("swiftsuru.api.utils.conf")
-    def test_bind_unit_calls_aclapi_to_liberate_keystone_through_aclapiclient(self, conf_mock, dbclient_mock, keystoneclient_mock):
+    @patch("swiftsuru.api.utils.conf", ENABLE_ACLAPI=True)
+    @patch("swiftsuru.api.conf", ENABLE_ACLAPI=True)
+    def test_bind_unit_calls_aclapi_to_liberate_keystone_through_aclapiclient(self, _, conf_mock, __, keystoneclient_mock):
         self._keystoneclient_mock(keystoneclient_mock)
         bog = Bogus()
         bog.register(("/api/ipv4/acl/10.4.3.0/24", lambda: ("{}", 200)),
@@ -191,7 +195,8 @@ class APITest(unittest.TestCase):
     @patch("swiftsuru.api.KeystoneClient")
     @patch("swiftsuru.api.SwiftsuruDBClient")
     @patch("swiftsuru.api.utils.conf")
-    def test_bind_calls_aclapi_to_liberate_swift_through_aclapiclient(self, conf_mock, dbclient_mock, keystoneclient_mock):
+    @patch("swiftsuru.api.conf", ENABLE_ACLAPI=True)
+    def test_bind_calls_aclapi_to_liberate_swift_through_aclapiclient(self, _, conf_mock, __, keystoneclient_mock):
         self._keystoneclient_mock(keystoneclient_mock)
         Bogus.called_paths = []
         bog = Bogus()

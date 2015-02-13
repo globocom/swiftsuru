@@ -48,6 +48,7 @@ def format_for_network_mask(ip):
 aclcli = None
 logger = get_logger(__name__)
 
+
 def aclapi_cli():
     global aclcli
     if aclcli is None:

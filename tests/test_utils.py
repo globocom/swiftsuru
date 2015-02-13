@@ -1,3 +1,4 @@
+import os
 import re
 import unittest
 from collections import namedtuple
@@ -52,7 +53,8 @@ class UtilsTest(unittest.TestCase):
 
     @patch("swiftsuru.utils.Client")
     @patch("swiftsuru.utils.L4Opts")
-    def test_permit_keystone_access_should_call_aclapiclient_with_keystone_ip_endpoint(self, l4_opts_mock, aclapi_mock):
+    @patch("swiftsuru.utils.conf", KEYSTONE_HOST='127.0.0.1')
+    def test_permit_keystone_access_should_call_aclapiclient_with_keystone_ip_endpoint(self, mock_key, l4_opts_mock, aclapi_mock):
         utils.aclcli = None
         func_mock = aclapi_mock.return_value.add_tcp_permit_access
         l4_opts_obj = namedtuple("L4Opts", ["to_dict"])(lambda: {})
