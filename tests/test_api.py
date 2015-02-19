@@ -154,7 +154,7 @@ class APITest(unittest.TestCase):
                              content_type=self.content_type)
 
         self.assertTrue(set_cors_mock.called)
-        set_cors_mock.assert_called_once_with('intance_container', u'myapp.cloud.tsuru.io')
+        set_cors_mock.assert_called_once_with('intance_container', 'http://myapp.cloud.tsuru.io https://myapp.cloud.tsuru.io')
 
     @patch("swiftsuru.api.SwiftClient.set_cors")
     @patch("swiftsuru.api.KeystoneClient")
@@ -260,7 +260,7 @@ class APITest(unittest.TestCase):
                                content_type=self.content_type)
 
         self.assertTrue(unset_cors_mock.called)
-        unset_cors_mock.assert_called_once_with('intance_container', u'myapp.cloud.tsuru.io')
+        unset_cors_mock.assert_called_once_with('intance_container', u'http://myapp.cloud.tsuru.io https://myapp.cloud.tsuru.io')
 
     def test_healthcheck(self):
         response = self.client.get("/healthcheck")

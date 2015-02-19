@@ -146,8 +146,10 @@ def _bind(instance_name, app_host=None):
 
     if app_host:
         try:
+            cors_url = utils.format_cors_url(app_host)
+
             client = SwiftClient(keystone)
-            client.set_cors(container, app_host)
+            client.set_cors(container, cors_url)
 
             log_msg = 'CORS set on <{}> to <{}>'
             logger.debug(log_msg.format(container, app_host))
@@ -240,8 +242,10 @@ def _unbind(instance_name, app_host):
     keystone = KeystoneClient(tenant=tenant)
 
     try:
+        cors_url = utils.format_cors_url(app_host)
+
         client = SwiftClient(keystone)
-        client.unset_cors(container, app_host)
+        client.unset_cors(container, cors_url)
     except Exception, err:
         # TODO: remove user created on Keystone
         err_msg = 'Fail to set CORS to container on Swift: {}'.format(err)

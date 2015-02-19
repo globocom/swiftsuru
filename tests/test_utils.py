@@ -100,3 +100,10 @@ class UtilsTest(unittest.TestCase):
         l4_opts_mock.return_value.to_dict.return_value = {}
         utils.permit_swift_access(unit_host="10.10.2.3")
         l4_opts_mock.assert_called_once_with("eq", "35357", "dest")
+
+    def test_form_complete_cors_url(self):
+
+        computed = utils.format_cors_url('somehost.com')
+        expected = 'http://somehost.com https://somehost.com'
+
+        self.assertEqual(computed, expected)
