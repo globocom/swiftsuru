@@ -9,8 +9,10 @@ import socket
 from aclapiclient import Client, L4Opts
 from swiftsuru import conf
 
+
 def format_cors_url(host):
     return 'http://{host} https://{host}'.format(host=host)
+
 
 def get_logger(name):
     logger = logging.getLogger(name)
