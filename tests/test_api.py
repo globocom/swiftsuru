@@ -98,10 +98,10 @@ class APITest(unittest.TestCase):
         url = bog.serve()
         self._mock_confs(url, conf_mock)
         dbclient_mock.return_value.get_instance.return_value = {"name": 'instance_name',
-                                                                "team": 'intance_team',
-                                                                "container": 'intance_container',
-                                                                "plan": 'intance_plan',
-                                                                "user": 'intance_user',
+                                                                "team": 'instance_team',
+                                                                "container": 'instance_container',
+                                                                "plan": 'instance_plan',
+                                                                "user": 'instance_user',
                                                                 "password": 'instance_password'}
 
         dbclient_mock.return_value.get_instance.return_value = {"name": 'plan_name',
@@ -140,10 +140,10 @@ class APITest(unittest.TestCase):
     def test_bind_app_should_set_cors(self, conf_mock, dbclient_mock, keystoneclient_mock, set_cors_mock):
 
         dbclient_mock.return_value.get_instance.return_value = {"name": 'instance_name',
-                                                                "team": 'intance_team',
-                                                                "container": 'intance_container',
-                                                                "plan": 'intance_plan',
-                                                                "user": 'intance_user',
+                                                                "team": 'instance_team',
+                                                                "container": 'instance_container',
+                                                                "plan": 'instance_plan',
+                                                                "user": 'instance_user',
                                                                 "password": 'instance_password'}
 
         self._keystoneclient_mock(keystoneclient_mock)
@@ -154,7 +154,7 @@ class APITest(unittest.TestCase):
                              content_type=self.content_type)
 
         self.assertTrue(set_cors_mock.called)
-        set_cors_mock.assert_called_once_with('intance_container', 'http://myapp.cloud.tsuru.io https://myapp.cloud.tsuru.io')
+        set_cors_mock.assert_called_once_with('instance_container', 'http://myapp.cloud.tsuru.io https://myapp.cloud.tsuru.io')
 
     @patch("swiftsuru.api.SwiftClient.set_cors")
     @patch("swiftsuru.api.KeystoneClient")
@@ -246,10 +246,10 @@ class APITest(unittest.TestCase):
     def test_unbind_app_calls_unset_cors(self, conf_mock, dbclient_mock, unset_cors_mock, keystoneclient_mock):
 
         dbclient_mock.return_value.get_instance.return_value = {"name": 'instance_name',
-                                                                "team": 'intance_team',
-                                                                "container": 'intance_container',
-                                                                "plan": 'intance_plan',
-                                                                "user": 'intance_user',
+                                                                "team": 'instance_team',
+                                                                "container": 'instance_container',
+                                                                "plan": 'instance_plan',
+                                                                "user": 'instance_user',
                                                                 "password": 'instance_password'}
 
         self._keystoneclient_mock(keystoneclient_mock)
@@ -260,7 +260,7 @@ class APITest(unittest.TestCase):
                                content_type=self.content_type)
 
         self.assertTrue(unset_cors_mock.called)
-        unset_cors_mock.assert_called_once_with('intance_container', u'http://myapp.cloud.tsuru.io https://myapp.cloud.tsuru.io')
+        unset_cors_mock.assert_called_once_with('instance_container', u'http://myapp.cloud.tsuru.io https://myapp.cloud.tsuru.io')
 
     def test_healthcheck(self):
         response = self.client.get("/healthcheck")
