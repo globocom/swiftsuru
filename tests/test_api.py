@@ -2,7 +2,7 @@ import json
 import logging
 import unittest
 from collections import Counter
-from mock import patch, Mock
+from mock import patch, Mock, call
 from bogus.server import Bogus
 
 from swiftsuru import app, conf
@@ -20,8 +20,11 @@ class APITest(unittest.TestCase):
     @patch("swiftsuru.api.SwiftsuruDBClient")
     @patch("swiftsuru.api.SwiftClient")
     @patch("swiftsuru.api.KeystoneClient")
-    def test_add_instance(self, mock_keystoneclient, mock_swiftclient, mock_dbclient):
+    @patch("swiftsuru.api.utils.generate_container_name")
+    def test_add_instance(self, mock_generate, mock_keystoneclient, mock_swiftclient, mock_dbclient):
         mock_dbclient.return_value.get_plan.return_value = {'tenant': 'tenant_name'}
+        mock_generate.return_value = 'container_name'
+        mock_create_container = mock_swiftclient.return_value.create_container
 
         data = "name=myinstance&plan=small&team=myteam"
         response = self.client.post("/resources",
@@ -33,6 +36,7 @@ class APITest(unittest.TestCase):
         expected_username = 'myteam_myinstance'
         expected_role = conf.KEYSTONE_DEFAULT_ROLE
 
+        # Verifica criacao de usuario
         self.assertTrue(mock_keystoneclient.return_value.create_user.called)
         _, _, kargs = mock_keystoneclient.return_value.create_user.mock_calls[0]
 
@@ -41,6 +45,18 @@ class APITest(unittest.TestCase):
         self.assertEqual(len(kargs['password']), 8)
         self.assertEqual(kargs['enabled'], True)
         self.assertEqual(kargs['project_name'], 'tenant_name')
+
+        # Verifica criacao de container
+        self.assertEqual(mock_create_container.call_count, 2)
+
+        calls = [
+            call('container_name', {'X-Container-Write': 'tenant_name:myteam_myinstance',
+                                    'X-Container-Read': '.r:*,tenant_name:myteam_myinstance'}),
+            call('.trash-container_name', {'X-Container-Write': 'tenant_name:myteam_myinstance',
+                                           'X-Container-Read': '.r:*,tenant_name:myteam_myinstance'}),
+        ]
+
+        mock_create_container.assert_has_calls(calls)
 
     @patch("swiftsuru.api.SwiftsuruDBClient")
     def test_add_instance_with_an_invalid_plan(self, mock_dbclient):

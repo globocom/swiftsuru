@@ -28,7 +28,7 @@ def add_instance():
     - Creates a new User on Keystone
     - Creates a new Container on the Tenant chose by the plan
     - Grant r/w permission for the new user on this new container
-    - Saves on MongDB the Service Intances infos
+    - Saves on MongoDB the Service Intances infos
     """
     try:
         db_cli = SwiftsuruDBClient()
@@ -81,6 +81,7 @@ def add_instance():
     try:
         client = SwiftClient(keystone)
         client.create_container(container_name, headers)
+        client.create_container('.trash-{}'.format(container_name), headers)
     except Exception, err:
         # TODO: remove user created on Keystone
         err_msg = 'Fail to create container on Swift: {}'.format(err)
