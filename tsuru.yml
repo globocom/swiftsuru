@@ -1,3 +1,0 @@
-hooks:
-    build:
-        - HOME=/home/ubuntu USER=ubuntu /home/application/.app_env/bin/pip install -r requirements_prod.txt

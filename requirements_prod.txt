@@ -1,4 +1,0 @@
-Flask==0.10.1
-pymongo==2.7.2
-python-keystoneclient==1.8.1
-python-swiftclient==2.7.0
