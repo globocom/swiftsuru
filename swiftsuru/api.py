@@ -81,6 +81,7 @@ def add_instance():
     try:
         client = SwiftClient(keystone)
         client.create_container(container_name, headers)
+        # Container created to allow the use of undelete middleware
         client.create_container('.trash-{}'.format(container_name), headers)
     except Exception, err:
         # TODO: remove user created on Keystone

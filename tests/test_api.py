@@ -36,7 +36,7 @@ class APITest(unittest.TestCase):
         expected_username = 'myteam_myinstance'
         expected_role = conf.KEYSTONE_DEFAULT_ROLE
 
-        # Verifica criacao de usuario
+        # Check user creation
         self.assertTrue(mock_keystoneclient.return_value.create_user.called)
         _, _, kargs = mock_keystoneclient.return_value.create_user.mock_calls[0]
 
@@ -46,7 +46,7 @@ class APITest(unittest.TestCase):
         self.assertEqual(kargs['enabled'], True)
         self.assertEqual(kargs['project_name'], 'tenant_name')
 
-        # Verifica criacao de container
+        # Check container creation
         self.assertEqual(mock_create_container.call_count, 2)
 
         calls = [
