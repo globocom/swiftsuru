@@ -1,1 +1,1 @@
-web: python -m /home/application/current/swiftsuru
+web: python run.py
