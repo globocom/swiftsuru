@@ -51,55 +51,55 @@ class UtilsTest(unittest.TestCase):
         result = utils.format_for_network_mask(mask)
         self.assertEqual(result, expected)
 
-    @patch("swiftsuru.utils.Client")
-    @patch("swiftsuru.utils.L4Opts")
-    @patch("swiftsuru.utils.conf", KEYSTONE_HOST='127.0.0.1')
-    def test_permit_keystone_access_should_call_aclapiclient_with_keystone_ip_endpoint(self, mock_key, l4_opts_mock, aclapi_mock):
-        utils.aclcli = None
-        func_mock = aclapi_mock.return_value.add_tcp_permit_access
-        l4_opts_obj = namedtuple("L4Opts", ["to_dict"])(lambda: {})
-        l4_opts_mock.return_value = l4_opts_obj
-        utils.permit_keystone_access(unit_host="10.10.1.2")
-        func_mock.assert_called_once_with(
-            desc="keystone access (swift service) for tsuru unit: {}".format("10.10.1.2"),
-            source="10.10.1.0/24",
-            dest="127.0.0.1/32",
-            l4_opts=l4_opts_obj
-        )
+    # @patch("swiftsuru.utils.Client")
+    # @patch("swiftsuru.utils.L4Opts")
+    # @patch("swiftsuru.utils.conf", KEYSTONE_HOST='127.0.0.1')
+    # def test_permit_keystone_access_should_call_aclapiclient_with_keystone_ip_endpoint(self, mock_key, l4_opts_mock, aclapi_mock):
+    #     utils.aclcli = None
+    #     func_mock = aclapi_mock.return_value.add_tcp_permit_access
+    #     l4_opts_obj = namedtuple("L4Opts", ["to_dict"])(lambda: {})
+    #     l4_opts_mock.return_value = l4_opts_obj
+    #     utils.permit_keystone_access(unit_host="10.10.1.2")
+    #     func_mock.assert_called_once_with(
+    #         desc="keystone access (swift service) for tsuru unit: {}".format("10.10.1.2"),
+    #         source="10.10.1.0/24",
+    #         dest="127.0.0.1/32",
+    #         l4_opts=l4_opts_obj
+    #     )
 
-    @patch("swiftsuru.utils.Client")
-    @patch("swiftsuru.utils.L4Opts")
-    def test_permit_keystone_access_liberates_correct_port(self, l4_opts_mock, aclapi_mock):
-        utils.aclcli = None
-        l4_opts_mock.return_value.to_dict.return_value = {}
-        utils.permit_keystone_access(unit_host="10.10.1.2")
-        l4_opts_mock.assert_called_once_with("eq", conf.KEYSTONE_PORT, "dest")
+    # @patch("swiftsuru.utils.Client")
+    # @patch("swiftsuru.utils.L4Opts")
+    # def test_permit_keystone_access_liberates_correct_port(self, l4_opts_mock, aclapi_mock):
+    #     utils.aclcli = None
+    #     l4_opts_mock.return_value.to_dict.return_value = {}
+    #     utils.permit_keystone_access(unit_host="10.10.1.2")
+    #     l4_opts_mock.assert_called_once_with("eq", conf.KEYSTONE_PORT, "dest")
 
-    @patch("swiftsuru.utils.Client")
-    @patch("swiftsuru.utils.L4Opts")
-    def test_permit_swift_access_should_call_aclapiclient_with_swift_api_ip_endpoint(self, l4_opts_mock, aclapi_mock):
-        utils.aclcli = None
-        # swift_host could as well be the DNS name
-        utils.conf.SWIFT_API_HOST = "10.2.3.4"
-        utils.conf.SWIFT_API_PORT = "35357"
-        func_mock = aclapi_mock.return_value.add_tcp_permit_access
-        l4_opts_obj = namedtuple("L4Opts", ["to_dict"])(lambda: {})
-        l4_opts_mock.return_value = l4_opts_obj
-        utils.permit_swift_access(unit_host="10.10.2.3")
-        func_mock.assert_called_once_with(
-            desc="swift api access (swift service) for tsuru unit: {}".format("10.10.2.3"),
-            source="10.10.2.0/24",
-            dest="10.2.3.4/32",
-            l4_opts=l4_opts_obj
-        )
+    # @patch("swiftsuru.utils.Client")
+    # @patch("swiftsuru.utils.L4Opts")
+    # def test_permit_swift_access_should_call_aclapiclient_with_swift_api_ip_endpoint(self, l4_opts_mock, aclapi_mock):
+    #     utils.aclcli = None
+    #     # swift_host could as well be the DNS name
+    #     utils.conf.SWIFT_API_HOST = "10.2.3.4"
+    #     utils.conf.SWIFT_API_PORT = "35357"
+    #     func_mock = aclapi_mock.return_value.add_tcp_permit_access
+    #     l4_opts_obj = namedtuple("L4Opts", ["to_dict"])(lambda: {})
+    #     l4_opts_mock.return_value = l4_opts_obj
+    #     utils.permit_swift_access(unit_host="10.10.2.3")
+    #     func_mock.assert_called_once_with(
+    #         desc="swift api access (swift service) for tsuru unit: {}".format("10.10.2.3"),
+    #         source="10.10.2.0/24",
+    #         dest="10.2.3.4/32",
+    #         l4_opts=l4_opts_obj
+    #     )
 
-    @patch("swiftsuru.utils.Client")
-    @patch("swiftsuru.utils.L4Opts")
-    def test_permit_swift_access_liberates_correct_port(self, l4_opts_mock, aclapi_mock):
-        utils.aclcli = None
-        l4_opts_mock.return_value.to_dict.return_value = {}
-        utils.permit_swift_access(unit_host="10.10.2.3")
-        l4_opts_mock.assert_called_once_with("eq", "35357", "dest")
+    # @patch("swiftsuru.utils.Client")
+    # @patch("swiftsuru.utils.L4Opts")
+    # def test_permit_swift_access_liberates_correct_port(self, l4_opts_mock, aclapi_mock):
+    #     utils.aclcli = None
+    #     l4_opts_mock.return_value.to_dict.return_value = {}
+    #     utils.permit_swift_access(unit_host="10.10.2.3")
+    #     l4_opts_mock.assert_called_once_with("eq", "35357", "dest")
 
     def test_form_complete_cors_url(self):
 
