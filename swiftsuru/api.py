@@ -306,7 +306,7 @@ def list_plans():
 
     return content, 200
 
-@api.route("/resources/projects/users/plans")
+#@api.route("/resources/projects/users/plans")
 def list_projects_users_and_plans():
     """
     List projects, users and plans and fix permissions 
