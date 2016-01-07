@@ -286,7 +286,7 @@ def healthcheck():
     return "WORKING", 200
 
 
-@api.route("/resources/plans")
+@api.route("/resources/undelete/plans")
 def list_plans():
     """
     List all plans availables on Swift.
@@ -301,51 +301,5 @@ def list_plans():
         })
 
     content = Response(json.dumps(plans), mimetype="application/json")
-
-    return content, 200
-
-@api.route("/resources/projects/users/plans")
-def list_projects_users_and_plans():
-    """
-    List projects, users and plans and fix permissions 
-    """
-    db_cli = SwiftsuruDBClient()
-
-    for instance in db_cli.list_instances_for_fix_permissions():
-        instance = db_cli.get_instance(instance.get("name"))
-
-        if not instance:
-            logger.info('Instance <{}> not found on MongoDB'.format(instance))
-            return "Instance not found", 500
-
-        container = instance.get("container")
-        user = instance.get("user")
-        plan = instance.get("plan")
-        db_plan = db_cli.get_plan(plan)
-        tenant = db_plan.get("tenant")
-
-        log_msg = 'Instance found: container={}, user={}, tenant={}'
-        logger.info(log_msg.format(container, plan, tenant))
-
-        keystone = KeystoneClient(tenant=tenant)
-        endpoints = keystone.get_storage_endpoints()
-
-    try:
-        client_swift = SwiftClient(keystone)
-        
-        headers = {'X-Container-Read': + tenant +":" + user, 'X-Container-Write': tenant +":" + user }
-        client_swift.create_container(self, ".trash-" + container, headers)
-        
-        logger.info("Sucess to fix permissions: " + to_str(headers) + " to container " + container)        
-    except Exception, err:
-        err_msg = 'Fail to set permission to container .trash on Swift: {}'.format(err)
-        logger.error(err_msg)
-
-        return "Internal error: Failed to fix permissions: " + to_str(headers) + "to container " + container, 500
-
-
-    logger.info('Fix permission Only Sucess')
-
-    content = 'Fix Permissions! Status: OK'
 
     return content, 200

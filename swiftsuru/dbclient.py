@@ -42,6 +42,10 @@ class SwiftsuruDBClient(object):
         instances = self._db.instances.find().sort("name", pymongo.ASCENDING)
         return [instance for instance in instances]
 
+    def list_instances_for_fix_permissions(self):
+        instances = self._db.instances.find({ "deleted": { "$exists" : False}}).sort("name", pymongo.ASCENDING)
+        return [instance for instance in instances]
+    
     def get_instance(self, name):
         return self._db.instances.find_one({"name": name})
 

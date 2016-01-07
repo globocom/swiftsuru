@@ -4,7 +4,7 @@ import sys
 from os import environ
 
 # Swiftsuru settings
-DEBUG = environ.get("DEBUG", False)
+DEBUG = environ.get("DEBUG", True)
 
 # Logging
 LOG_LEVEL = logging.DEBUG if DEBUG else logging.INFO

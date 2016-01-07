@@ -4,7 +4,7 @@ urllib3.disable_warnings()
 
 from flask import Flask
 
-from swiftsuru import conf, api, utils
+from swiftsuru import conf, api, utils, api_undelete
 
 
 app = Flask(__name__)
