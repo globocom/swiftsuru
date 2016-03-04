@@ -30,6 +30,8 @@ def add_instance():
     - Grant r/w permission for the new user on this new container
     - Saves on MongoDB the Service Intances infos
     """
+    return "This service is deprecated. Please, use swift-prod or swift-qa.", 500
+
     try:
         db_cli = SwiftsuruDBClient()
     except Exception, err:
