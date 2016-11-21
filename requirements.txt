@@ -1,5 +1,5 @@
 --extra-index-url=https://artifactory.globoi.com/artifactory/api/pypi/pypi-all/simple
 Flask==0.10.1
-pymongo==2.7.2
+pymongo==3.3.1
 python-keystoneclient==2.0.0
 python-swiftclient==2.7.0
