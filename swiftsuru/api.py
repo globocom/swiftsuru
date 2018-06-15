@@ -162,7 +162,10 @@ def _bind(instance_name, app_host=None):
             err_msg = 'Fail to set CORS to container on Swift: {}'.format(err)
             logger.error(err_msg)
 
-            return "Internal error: Failed to bind instance", 500
+            # Este returno 500 esta comentado pois quando o header de CORS ultrapassa
+            # os 256 caracteres, entra nesta exception e nao continua a fazer o bind
+
+            # return "Internal error: Failed to bind instance", 500
 
     response = {
         "SWIFT_ADMIN_URL": '{}/{}'.format(endpoints["adminURL"],
